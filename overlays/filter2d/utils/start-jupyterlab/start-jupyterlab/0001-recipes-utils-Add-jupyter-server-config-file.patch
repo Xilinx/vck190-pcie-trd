@@ -1,0 +1,22 @@
+From 0e38f8b4c98cc824e6555bbf6d5bb7d6b2b4f58b Mon Sep 17 00:00:00 2001
+From: thippesw <thippesw@xilinx.com>
+Date: Tue, 6 Sep 2022 17:41:31 +0530
+Subject: [PATCH] recipes-utils: Add server config file
+
+---
+ jupyter_server_config.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/jupyter_server_config.py b/jupyter_server_config.py
+index 7cca31e..b529d1e 100644
+--- a/jupyter_server_config.py
++++ b/jupyter_server_config.py
+@@ -2,4 +2,4 @@ c.ServerApp.port = 8888
+ c.ServerApp.iopub_data_rate_limit = 100000000
+ c.ServerApp.allow_root=True
+ c.ServerApp.open_browser=False
+-
++c.ServerApp.root_dir = '/usr/share/notebooks'
+-- 
+1.8.3.1
+

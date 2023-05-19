@@ -1,0 +1,20 @@
+{
+  "xclbin-location": "/boot/binary_container_1.xclbin",
+  "vvas-library-repo": "/usr/lib/vvas",
+  "element-mode":"transform",
+  "kernel": {
+      "kernel-name": "filter2d_pl_accel:{filter2d_pl_accel_0}",
+      "library-name": "libvvas_xfilter2d_pl.so",
+      "config": {
+        "debug_level" : 1,
+        "in_fourcc" : "YUY2",
+        "out_fourcc" : "YUY2",
+        "filter_preset" : "identity",
+        "filter_coefficients" : [
+          [ 0, 0, 0],
+          [ 0, 1, 0],
+          [ 0, 0, 0]
+        ]
+      }
+    }
+}

@@ -1,0 +1,12 @@
+{
+   "xclbin-location":"/boot/binary_container_1.xclbin",
+   "software-ppe": false,
+   "device-index": 0,
+   "kernel" : {
+      "kernel-name": "image_processing:{image_processing_1}",
+      "config": {
+         "ppc": 4,
+         "debug-level" : 0
+      }
+   }
+}

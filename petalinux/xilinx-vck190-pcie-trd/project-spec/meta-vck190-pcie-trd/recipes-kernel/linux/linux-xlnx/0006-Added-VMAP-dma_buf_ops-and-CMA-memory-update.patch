@@ -1,0 +1,604 @@
+From 82cf8d9a2f46a94b49fb330457313d8f2f686b88 Mon Sep 17 00:00:00 2001
+From: thippesw <thippesw@xilinx.com>
+Date: Wed, 13 Jul 2022 17:40:22 +0530
+Subject: [PATCH] Added VMAP and CMA changes
+
+---
+ drivers/misc/xilinx_pci_endpoint.c | 347 ++++++++++++++++++++-----------------
+ 1 file changed, 190 insertions(+), 157 deletions(-)
+
+diff --git a/drivers/misc/xilinx_pci_endpoint.c b/drivers/misc/xilinx_pci_endpoint.c
+index 2d52751..8e30d4e 100644
+--- a/drivers/misc/xilinx_pci_endpoint.c
++++ b/drivers/misc/xilinx_pci_endpoint.c
+@@ -48,129 +48,91 @@
+ #include <linux/dma-mapping.h>
+ #include <asm/page.h>
+ #include <asm/byteorder.h>
++#include <linux/of_reserved_mem.h>
+ 
+ #define DEVICE_MAX_NUM      256
+ #define MAX_INSTANCES	    4
+ #define DRIVER_NAME        "pciep"
+ #define DEVICE_NAME_FORMAT "pciep%d"
+ 
+-#define PCIEP_READ_BUFFER_READY   0x00
+-#define PCIEP_READ_BUFFER_ADDR   0x04
+-#define PCIEP_READ_BUFFER_OFFSET 0x08
+-#define PCIEP_READ_BUFFER_SIZE   0x0c
+-#define PCIEP_WRITE_BUFFER_READY   0x10
+-#define PCIEP_WRITE_BUFFER_ADDR   0x14
+-#define PCIEP_WRITE_BUFFER_OFFSET 0x18
+-#define PCIEP_WRITE_BUFFER_SIZE   0x1c
+-#define PCIEP_READ_TRANSFER_DONE   0x20
+-#define PCIEP_WRITE_TRANSFER_DONE  0x24
+-#define PCIEP_READ_TRANSFER_CLR    0x28
+-#define PCIEP_READ_BUFFER_HOST_INTR  0x2c
+-#define PCIEP_WRITE_TRANSFER_CLR  0x30
+-#define PCIEP_KERNEL_NAME  0x3c
+-
+-#define PCIRC_READ_FILE_LENGTH     0x40
+-#define PCIRC_READ_BUFFER_TRANSFER_DONE 0x44
+-#define PCIRC_WRITE_BUFFER_TRANSFER_DONE 0x48
+-#define PCIRC_PID_SET 				0x4c
+-#define PCIRC_KERNEL_MODE	      		0x60
+-#define PCIRC_FILTER_TYPE         0x50
+-#define PCIRC_RAW_RESOLUTION      0x54
+-#define PCIRC_FORMAT_SET        0x58
+-#define PCIRC_UCASE_SET       0x5c
+-#define PCIRC_SET_FPS        0x64
+-#define PCIRC_READ_BUFFER_TRANSFER_DONE_INTR 0x68
+-#define PCIRC_WRITE_BUFFER_TRANSFER_DONE_INTR 0x6c
+-#define PCIRC_HOST_DONE_INTR     0x70
+-#define PCIRC_READ_SIG  	0x74
+-
+-#define PCIEP_CLR_REG            0x0
+-#define CLR_ALL                  0x0
+-#define CLR_BUFFER_RDY           0x0
+-#define SET_BUFFER_RDY           0x1
+-#define SET_TRANSFER_DONE        0x1
+-
+-#define GET_FILE_LENGTH			  0x0
+-#define GET_KERNEL_MODE  		  0x1
+-#define SET_READ_OFFSET 		  0x2
+-#define SET_WRITE_OFFSET		  0x3
+-#define SET_READ_TRANSFER_DONE    0x5
+-#define CLR_READ_TRANSFER_DONE    0x6
+-#define SET_WRITE_TRANSFER_DONE   0x7
+-#define CLR_WRITE_TRANSFER_DONE   0x8
+-#define GET_RESOLUTION            0x9
+-#define GET_HDMI_PID              0xa
+-#define GET_FPS                   0xb
+-#define GET_FORMAT                0xc
+-#define GET_FILTER_TYPE           0xd
+-#define ALLOC_DMA_BUFF            0xe
+-#define RELEASE_DMA_BUFF          0xf
+-#define PCIE_DMABUF_IMPORT        0x1b
+-#define GET_KERNEL_NAME        	  0x1c
+-#define GET_USE_CASE        	  0x1d
+-
+-#define MAP_DMA_BUFF		  0x1e
+-#define UNMAP_DMA_BUFF            0x1f
+-#define READ_SIG		  0x20
+-#define WIDTH_SHIFT               0x0
+-#define WIDTH_MASK                0xFFFF
+-#define HEIGHT_SHIFT              16
+-#define HEIGHT_MASK               0xFFFF
+-#define USE_CASE_MODE_SHIFT       0x0
+-#define USE_CASE_MODE_MASK        0x3
+-#define FPS_SHIFT                 0x5
+-#define FPS_MASK                  0x3FF
+-#define FORMAT_SHIFT              0x2
+-#define FORMAT_MASK               0x7
+-
+-#define L2CACHE_SHIFT             0x0
+-#define L2CACHE_MASK		      0x1
+-#define LOW_BANDWIDTH_SHIFT       0x1
+-#define LOW_BANDWIDTH_MASK	      0x1
+-#define FILLER_DATA_SHIFT		  0x2
+-#define FILLER_DATA_MASK		  0x1
+-#define BITRATE_SHIFT			  0x4
+-#define BITRATE_MASK			  0xFFFF
+-#define GOP_LENGTH_SHIFT		  20
+-#define GOP_LENGTH_MASK			  0xFFF
+-
+-#define B_FRAME_SHIFT			  0x0
+-#define B_FRAME_MASK			  0x3
+-#define SLICE_SHIFT				  0x3
+-#define SLICE_MASK				  0x3F
+-#define QP_MODE_SHIFT			  0x9
+-#define QP_MODE_MASK			  0x3
+-#define RC_MODE_SHIFT			  0xb
+-#define RC_MODE_MASK			  0x3
+-#define ENC_TYPE_SHIFT			  0xd
+-#define ENC_TYPE_MASK			  0x3
+-#define GOP_MODE_SHIFT			  0xf
+-#define GOP_MODE_MASK			  0x3
+-#define PROFILE_SHIFT			  0x12
+-#define PROFILE_MASK			  0x3
+-#define LATENCY_MODE_SHIFT		  0x15
+-#define LATENCY_MODE_MASK		  0x3
+-
++/* PCIe registers to perform file read */
++#define PCIEP_READ_BUFFER_READY   		0x00
++#define PCIEP_READ_BUFFER_ADDR_LOW   		0x04
++#define PCIEP_READ_BUFFER_OFFSET 		0x08
++#define PCIEP_READ_BUFFER_SIZE   		0x0c
++#define PCIEP_READ_BUFFER_ADDR_HIGH   		0x3c
++#define PCIEP_READ_TRANSFER_DONE   		0x20
++#define PCIEP_READ_TRANSFER_CLR    		0x28
++#define PCIEP_READ_BUFFER_HOST_INTR 		0x2c
++
++/* PCIe registers to perfrom file write */
++#define PCIEP_WRITE_BUFFER_READY   		0x10
++#define PCIEP_WRITE_BUFFER_ADDR_LOW   		0x14
++#define PCIEP_WRITE_BUFFER_OFFSET 		0x18
++#define PCIEP_WRITE_BUFFER_SIZE   		0x1c
++#define PCIEP_WRITE_TRANSFER_DONE  		0x24
++#define PCIEP_WRITE_TRANSFER_CLR  		0x30
++#define PCIEP_WRITE_BUFFER_ADDR_HIGH   		0x38
++
++/* HOST PARAMETERS INFO */
++#define PCIRC_READ_FILE_LENGTH     		0x84
++#define PCIRC_READ_BUFFER_TRANSFER_DONE 	0x88
++#define PCIRC_WRITE_BUFFER_TRANSFER_DONE 	0x8c
++#define PCIRC_HDMI_PID_SET 			0x90
++#define PCIRC_FILTER_TYPE         		0x94
++#define PCIRC_RAW_RESOLUTION      		0x98
++#define PCIRC_FORMAT_SET        		0x9c
++#define PCIRC_UCASE_SET       			0xa0
++#define PCIRC_KERNEL_MODE	      		0xa4
++#define PCIRC_SET_FPS        			0xa8
++#define PCIEP_FILTER_KERNEL_NAME  		0xac
++#define PCIRC_READ_SIG  			0xb4
++
++/* Interrupt registers to interrupt ps from host machine */
++#define PCIRC_READ_BUFFER_TRANSFER_DONE_INTR 	0xf0
++#define PCIRC_WRITE_BUFFER_TRANSFER_DONE_INTR 	0xf4 
++#define PCIRC_HOST_DONE_INTR			0xf8 
++
++/* Macro's to mask PCIe registers */
++#define PCIEP_CLR_REG            	0x0
++#define SET_BUFFER_RDY           	0x1
++
++/* IOCTL numbers */ 
++#define GET_FILE_LENGTH			0x0
++#define GET_KERNEL_MODE			0x1
++#define SET_READ_OFFSET			0x2
++#define SET_WRITE_OFFSET		0x3
++#define SET_READ_TRANSFER_DONE    	0x5
++#define CLR_READ_TRANSFER_DONE    	0x6
++#define SET_WRITE_TRANSFER_DONE   	0x7
++#define CLR_WRITE_TRANSFER_DONE   	0x8
++#define GET_RESOLUTION            	0x9
++#define GET_HDMI_PID              	0xa
++#define GET_FPS                   	0xb
++#define GET_FORMAT                	0xc
++#define GET_FILTER_TYPE           	0xd
++#define ALLOC_DMA_BUFF            	0xe
++#define RELEASE_DMA_BUFF          	0xf
++#define PCIE_DMABUF_IMPORT        	0x1b
++#define GET_KERNEL_NAME        	  	0x1c
++#define GET_USE_CASE        	  	0x1d
++#define MAP_DMA_BUFF		  	0x1e
++#define UNMAP_DMA_BUFF            	0x1f
++#define READ_SIG		  	0x20
++#define NUM_DMA_BUF		  	0x21
++
++/* Macro's used for masking resoltion */
++#define WIDTH_SHIFT               	0x0
++#define WIDTH_MASK                	0xFFFF
++#define HEIGHT_SHIFT              	16
++#define HEIGHT_MASK               	0xFFFF
++
++/*Macro's used for masking offset */
+ #define READ_BUF_HIGH_OFFSET      0xFFFF0000
+ #define WRITE_BUF_HIGH_OFFSET     0xFFFF0000
++
+ #define NUM_BUFFERS		3
+ 
+-int active_index;
+-/**
+- * _PGPROT_NONCACHED    : vm_page_prot value when ((sync_mode & SYNC_MODE_MASK)
+- *			== SYNC_MODE_NONCACHED)
+- * _PGPROT_WRITECOMBINE : vm_page_prot value when ((sync_mode & SYNC_MODE_MASK)
+- *			== SYNC_MODE_WRITECOMBINE)
+- * _PGPROT_DMACOHERENT  : vm_page_prot value when ((sync_mode & SYNC_MODE_MASK)
+- *			== SYNC_MODE_DMACOHERENT )
+- */
+-#if defined(CONFIG_ARM)
+-#define _PGPROT_NONCACHED(vm_page_prot)    pgprot_noncached(vm_page_prot)
+-#elif defined(CONFIG_ARM64)
+-#define _PGPROT_NONCACHED(vm_page_prot)    pgprot_writecombine(vm_page_prot)
+-#else
+-#define _PGPROT_NONCACHED(vm_page_prot)    pgprot_noncached(vm_page_prot)
+-#endif
+ char *fd_names[NUM_BUFFERS] = {
+ 	"fd1",
+ 	"fd2",
+@@ -262,7 +224,8 @@ struct pciep_driver_data {
+ 	int host_done_irq;
+ 	int read_req;
+     	int fd[NUM_BUFFERS];	/* fd */
+-   	int fd_inuse[NUM_BUFFERS]
++   	int fd_inuse[NUM_BUFFERS];
++	int active_index;
+ };
+ 
+ struct pciep_alloc_dma_buf {
+@@ -452,7 +415,6 @@ static int pciep_mmap(struct dma_buf *dmabuf,
+ 			struct vm_area_struct *vma)
+ {
+ 	struct pciep_driver_data *this = dmabuf->priv;
+-	size_t size = vma->vm_end - vma->vm_start;
+ 	void *virt;
+ 	dma_addr_t phys;
+ 
+@@ -496,7 +458,7 @@ static int pciep_dmabuf_import(struct pciep_driver_data *this,
+ 		dbuf = dma_buf_get(args.dbuf_fd);
+ 		if (IS_ERR(dbuf)) {
+ 			dev_err(this->dma_dev, "failed to get dmabuf\n");
+-			ret -1;
++			ret = -1;
+ 			goto err;
+ 		}
+ 		dbuf_attach = dma_buf_attach(dbuf, this->dma_dev);
+@@ -621,6 +583,14 @@ static void pciep_release(struct dma_buf *dmabuf)
+ {
+ 
+ }
++static int pciep_dma_buf_vmap(struct dma_buf *dmabuf, struct dma_buf_map *map)
++{
++	struct pciep_driver_data *this = dmabuf->priv;
++
++	dma_buf_map_set_vaddr(map, this->read_virt_addr[this->active_index]);
++
++	return 0;
++}
+ 
+ static const struct dma_buf_ops pciep_dma_buf_ops = {
+ 	.attach = pciep_dma_buf_attach,
+@@ -628,6 +598,7 @@ static void pciep_release(struct dma_buf *dmabuf)
+ 	.map_dma_buf = pciep_map_dma_buf,
+ 	.unmap_dma_buf = pciep_unmap_dma_buf,
+ 	.mmap = pciep_mmap,
++	.vmap = pciep_dma_buf_vmap,
+ 	.release = pciep_release,
+ };
+ 
+@@ -648,7 +619,7 @@ static int pciep_dmabuf_map(struct pciep_driver_data *this, char __user *argp)
+ 			fd = this->fd[i];
+ 			this->fd_inuse[i] = 1;
+ 			/* Flag to assign array of read phys addre */
+-			active_index = i;
++			this->active_index = i;
+ 			break;
+ 		}
+ 	}
+@@ -700,7 +671,6 @@ static int pciep_dmabuf_alloc(struct pciep_driver_data *this, char __user *argp)
+ {
+ 	struct pciep_alloc_dma_buf bp;
+ 	struct dma_buf_export_info exp_info[3] = { };
+-	int err;
+ 	int i,j;
+ 	void *virt;
+ 	dma_addr_t phys;
+@@ -753,16 +723,16 @@ static int pciep_dmabuf_alloc(struct pciep_driver_data *this, char __user *argp)
+ err_export:
+ 	virt = this->read_virt_addr[i];
+ 	phys = this->read_phys_addr[i];
+-	this->read_virt_addr[i] = NULL;
+-	this->read_phys_addr[i] = NULL;
++	this->read_virt_addr[i] = 0;
++	this->read_phys_addr[i] = 0;
+ 	dma_free_coherent(this->dma_dev, this->alloc_size,
+ 			virt, phys);
+ err_alloc:
+ 	for (j = i-1; j >= 0; j--) {
+ 		virt = this->read_virt_addr[j];
+ 		phys = this->read_phys_addr[j];
+-		this->read_virt_addr[j] = NULL;
+-		this->read_phys_addr[j] = NULL;
++		this->read_virt_addr[j] = 0;
++		this->read_phys_addr[j] = 0;
+ 		dma_free_coherent(this->dma_dev, this->alloc_size,
+ 				virt, phys);
+ 	}
+@@ -775,7 +745,7 @@ static long pciep_driver_file_ioctl(struct file *file, unsigned int cmd,
+ {
+ 	struct pciep_driver_data *this = file->private_data;
+ 	unsigned int value;
+-	u64 value1;
++	u64 offset_64;
+ 	u64 size;
+ 	struct resolution res;
+ 	int ret;
+@@ -784,8 +754,8 @@ static long pciep_driver_file_ioctl(struct file *file, unsigned int cmd,
+ 	switch (cmd) {
+ 	case GET_FILE_LENGTH:
+ 			value = reg_read(this, PCIRC_READ_FILE_LENGTH);
+-			value1 = reg_read(this, (PCIRC_READ_FILE_LENGTH - 4));
+-			size = value | value1 << 32;
++			offset_64 = reg_read(this, (PCIRC_READ_FILE_LENGTH - 4));
++			size = value | offset_64 << 32;
+ 			ret = copy_to_user((u64 *) arg, &size, sizeof(size));
+ 			return ret;
+ 	
+@@ -807,25 +777,25 @@ static long pciep_driver_file_ioctl(struct file *file, unsigned int cmd,
+ 			return ret;
+ 	
+ 	case GET_HDMI_PID :
+-	    		value = reg_read(this, PCIRC_PID_SET);
++	    		value = reg_read(this, PCIRC_HDMI_PID_SET);
+ 	    		ret = copy_to_user((u32 *) arg, &value, sizeof(value));
+ 	    		return ret;
+ 
+ 	case SET_READ_OFFSET:
+-			ret = copy_from_user(&value1, (u64 *) arg, sizeof(value1));
+-			reg_write(this, PCIEP_READ_BUFFER_OFFSET, value1);
++			ret = copy_from_user(&offset_64, (u64 *) arg, sizeof(offset_64));
++			reg_write(this, PCIEP_READ_BUFFER_OFFSET, offset_64);
+ 			value = reg_read(this, PCIEP_READ_BUFFER_READY);
+ 			value &= ~READ_BUF_HIGH_OFFSET;
+-			value |= (value1 >> 16) & READ_BUF_HIGH_OFFSET;
++			value |= (offset_64 >> 16) & READ_BUF_HIGH_OFFSET;
+ 			reg_write(this, PCIEP_READ_BUFFER_READY, value);
+ 			return ret;
+ 
+ 	case SET_WRITE_OFFSET:
+-			ret = copy_from_user(&value1, (u64 *) arg, sizeof(value1));
+-			reg_write(this, PCIEP_WRITE_BUFFER_OFFSET, value1);
++			ret = copy_from_user(&offset_64, (u64 *) arg, sizeof(offset_64));
++			reg_write(this, PCIEP_WRITE_BUFFER_OFFSET, offset_64);
+ 		    value = reg_read(this, PCIEP_WRITE_BUFFER_READY);
+ 		    value &= ~WRITE_BUF_HIGH_OFFSET;
+-		    value |= (value1 >> 16) & WRITE_BUF_HIGH_OFFSET;
++		    value |= (offset_64 >> 16) & WRITE_BUF_HIGH_OFFSET;
+ 		    reg_write(this, PCIEP_WRITE_BUFFER_READY, value);
+ 			return ret;
+ 
+@@ -861,7 +831,7 @@ static long pciep_driver_file_ioctl(struct file *file, unsigned int cmd,
+ 	   		return ret;
+ 
+ 	case GET_KERNEL_NAME:
+-	   		value = reg_read(this, PCIEP_KERNEL_NAME);
++	   		value = reg_read(this, PCIEP_FILTER_KERNEL_NAME);
+ 	   		ret = copy_to_user((u32 *) arg, &value, sizeof(value));
+ 	   		return ret;
+ 
+@@ -889,6 +859,10 @@ static long pciep_driver_file_ioctl(struct file *file, unsigned int cmd,
+ 	   		value = reg_read(this, PCIRC_READ_SIG);
+ 			ret = copy_to_user((u32 *) arg, &value, sizeof(value));
+ 	   		return ret;
++
++	case NUM_DMA_BUF:
++                        return NUM_BUFFERS;
++
+  
+ 	default:
+ 			return -ENOTTY;
+@@ -909,15 +883,21 @@ static ssize_t pciep_driver_file_read(struct file *file, char __user *buff,
+ 	struct pciep_driver_data *this = file->private_data;
+ 	u32 value;
+ 	int ret = 0;
+-
++	u32 read_phys;
+ 	/* check the size */
+ 	if (count <= 0)
+ 		return -EINVAL;
+-    reg_write(this, PCIEP_READ_BUFFER_ADDR, this->read_phys_addr[active_index]);
+-    reg_write(this, PCIEP_READ_BUFFER_SIZE, count);
+-    value = reg_read(this, PCIEP_READ_BUFFER_READY);
+-    value |= SET_BUFFER_RDY;
+-    reg_write(this, PCIEP_READ_BUFFER_READY, value);
++	
++	read_phys = this->read_phys_addr[this->active_index] >> 32;	
++    	reg_write(this, PCIEP_READ_BUFFER_ADDR_HIGH, read_phys);
++    	
++	read_phys = this->read_phys_addr[this->active_index] ;	
++    	reg_write(this, PCIEP_READ_BUFFER_ADDR_LOW,read_phys );
++
++	reg_write(this, PCIEP_READ_BUFFER_SIZE, count);
++	value = reg_read(this, PCIEP_READ_BUFFER_READY);
++    	value |= SET_BUFFER_RDY;
++        reg_write(this, PCIEP_READ_BUFFER_READY, value);
+ 
+ 	/* wait for done event */
+ 	wait_for_completion_interruptible(&this->read_complete);
+@@ -940,12 +920,17 @@ static ssize_t pciep_driver_file_write(struct file *file,
+ 	struct pciep_driver_data *this = file->private_data;
+ 	int ret = 0;
+ 	u32 value;
+-
++	u32 write_phys;
+ 	/* check the size */
+ 	if (count <= 0)
+ 		return -EINVAL;
+-
+-	reg_write(this, PCIEP_WRITE_BUFFER_ADDR, this->write_phys_addr);
++    	
++	
++	write_phys = this->write_phys_addr >> 32;	
++	reg_write(this, PCIEP_WRITE_BUFFER_ADDR_HIGH, write_phys);
++    	write_phys = this->write_phys_addr;	
++	reg_write(this, PCIEP_WRITE_BUFFER_ADDR_LOW,write_phys);
++	
+ 	reg_write(this, PCIEP_WRITE_BUFFER_SIZE, count);
+ 	value = reg_read(this, PCIEP_WRITE_BUFFER_READY);
+ 	value |= SET_BUFFER_RDY;
+@@ -1102,9 +1087,9 @@ static struct pciep_driver_data *pciep_driver_create(const char *name,
+ 	this->dma_dev = parent;
+ 
+ 	of_dma_configure(this->dma_dev, NULL, true);
+-	dma_set_mask(this->dma_dev, DMA_BIT_MASK(sizeof(dma_addr_t) * 4));
++	dma_set_mask(this->dma_dev, DMA_BIT_MASK(64));
+ 	dma_set_coherent_mask(this->dma_dev,
+-			      DMA_BIT_MASK(sizeof(dma_addr_t) * 4));
++		      DMA_BIT_MASK(64));
+ 
+ 	done |= DONE_ALLOC_CMA;
+ 
+@@ -1147,12 +1132,10 @@ static struct pciep_driver_data *pciep_driver_create(const char *name,
+  */
+ static int pciep_platform_driver_probe(struct platform_device *pdev)
+ {
+-	int retval = 0;
+ 	u32 minor_number = 0;
+ 	struct pciep_driver_data *driver_data;
+ 	struct device_node *node = pdev->dev.of_node;
+ 	struct resource *res;
+-	int status;
+ 	int ret;
+ 	u32 size=4096;
+ 	char channel[5];
+@@ -1162,19 +1145,21 @@ static int pciep_platform_driver_probe(struct platform_device *pdev)
+ 					  size, channel);
+ 	if (IS_ERR_OR_NULL(driver_data)) {
+ 		dev_err(&pdev->dev, "driver create fail.\n");
+-		retval = PTR_ERR(driver_data);
++		ret = PTR_ERR(driver_data);
+ 		goto failed;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	driver_data->regs= devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR_OR_NULL(driver_data->regs))
+-		return PTR_ERR(driver_data->regs);
+-
++	if (IS_ERR_OR_NULL(driver_data->regs)){
++		ret = PTR_ERR(driver_data->regs);
++		goto failed;
++	}
+ 	driver_data->rd_irq = irq_of_parse_and_map(node, 0);
+ 	if (driver_data->rd_irq < 0) {
+ 		pr_err("Unable to get IRQ for pcie");
+-		return driver_data->rd_irq;
++		ret = driver_data->rd_irq;
++		goto failed;
+ 	}
+ 
+ 	ret = devm_request_irq(&pdev->dev, driver_data->rd_irq,
+@@ -1188,7 +1173,8 @@ static int pciep_platform_driver_probe(struct platform_device *pdev)
+ 	driver_data->wr_irq = irq_of_parse_and_map(node, 1);
+ 	if (driver_data->wr_irq < 0) {
+ 		pr_err("Unable to get IRQ1 for pcie");
+-		return driver_data->wr_irq;
++		ret = driver_data->wr_irq;
++		goto free_rd_irq;
+ 	}
+ 
+ 	ret = devm_request_irq(&pdev->dev, driver_data->wr_irq,
+@@ -1196,13 +1182,14 @@ static int pciep_platform_driver_probe(struct platform_device *pdev)
+ 			       "xilinx_pciep_write", driver_data);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "Unable to register IRQ\n");
+-		goto failed;
++		goto free_rd_irq;
+ 	}
+ 
+ 	driver_data->host_done_irq = irq_of_parse_and_map(node, 2);
+ 	if (driver_data->host_done_irq < 0) {
+ 		pr_err("Unable to get IRQ1 for pcie");
+-		return driver_data->host_done_irq;
++		ret = driver_data->host_done_irq;
++		goto free_wr_irq;
+ 	}
+ 
+ 	ret = devm_request_irq(&pdev->dev, driver_data->host_done_irq,
+@@ -1210,15 +1197,37 @@ static int pciep_platform_driver_probe(struct platform_device *pdev)
+ 			       "xilinx_host_done", driver_data);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "Unable to register IRQ\n");
+-		goto failed;
++		goto free_wr_irq;
+ 	}
++	/* Initialize reserved memory resources */
++  	 ret = of_reserved_mem_device_init(&pdev->dev);
++ 	if(ret) {
++    		dev_err(&pdev->dev, "Could not get reserved memory\n");
++    		goto free_host_done_irq;
++  	} 
++	
+ 	dev_set_drvdata(&pdev->dev, driver_data);
+ 	dev_info(&pdev->dev, "pcie driver probe success.\n");
+ 	return 0;
+ 
++free_host_done_irq :
++	if(driver_data->host_done_irq) {
++		devm_free_irq(&pdev->dev, driver_data->host_done_irq, driver_data);
++		driver_data->host_done_irq = 0;
++	}
++free_wr_irq :
++	if(driver_data->wr_irq){
++		devm_free_irq(&pdev->dev, driver_data->wr_irq, driver_data);
++		driver_data->wr_irq = 0;
++	}
++free_rd_irq :
++	if(driver_data->rd_irq){
++		devm_free_irq(&pdev->dev, driver_data->rd_irq, driver_data);
++		driver_data->rd_irq = 0;
++	}
+ failed:
+ 	dev_info(&pdev->dev, "driver install failed.\n");
+-	return retval;
++	return ret;
+ }
+ 
+ /**
+@@ -1235,6 +1244,7 @@ static int pciep_driver_destroy(struct pciep_driver_data *this)
+ 
+ 	ida_simple_remove(&pciep_device_ida, MINOR(this->device_number));
+ 	cdev_del(&this->cdev);
++	device_destroy(pciep_sys_class, this->device_number);
+ 	kfree(this);
+ 	return 0;
+ }
+@@ -1250,7 +1260,19 @@ static int pciep_platform_driver_remove(struct platform_device *pdev)
+ {
+ 	struct pciep_driver_data *this = dev_get_drvdata(&pdev->dev);
+ 	int retval = 0;
+-
++	
++	if(this->host_done_irq) {
++		devm_free_irq(&pdev->dev, this->host_done_irq, this);
++		this->host_done_irq = 0;
++	}
++	if(this->wr_irq){
++		devm_free_irq(&pdev->dev, this->wr_irq, this);
++		this->wr_irq = 0;
++	}
++	if(this->rd_irq){
++		devm_free_irq(&pdev->dev, this->rd_irq, this);
++		this->rd_irq = 0;
++	}
+ 	retval = pciep_driver_destroy(this);
+ 	if (retval != 0)
+ 		return retval;
+@@ -1295,6 +1317,16 @@ static void __exit pciep_module_exit(void)
+ }
+ 
+ /**
++* pciep_devnode() - To provide permissions to non-root user
++*/
++static char *pciep_devnode(struct device *dev, umode_t *mode)
++{
++       if (mode)
++          *mode = 0666; /* or whatever permissions you want */
++       return NULL; 
++}
++
++/**
+  * pciep_module_init()
+  */
+ static int __init pciep_module_init(void)
+@@ -1317,6 +1349,7 @@ static int __init pciep_module_init(void)
+ 		pciep_sys_class = NULL;
+ 		goto failed;
+ 	}
++	pciep_sys_class->devnode = pciep_devnode;
+ 	retval = platform_driver_register(&pciep_platform_driver);
+ 	if (retval)
+ 		pr_err("%s: couldn't register platform driver\n", DRIVER_NAME);
+-- 
+1.8.3.1
+

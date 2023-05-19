@@ -1,0 +1,6 @@
+[submodule "overlays/Vitis_Libraries"]
+	path = overlays/Vitis_Libraries
+	url = https://github.com/Xilinx/Vitis_Libraries.git
+[submodule "overlays/xvdpu/kernels/vitis_prj/vvas"]
+	path = overlays/xvdpu/kernels/vitis_prj/vvas
+	url = https://github.com/Xilinx/VVAS.git

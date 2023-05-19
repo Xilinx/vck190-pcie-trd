@@ -1,0 +1,10 @@
+Interrupt ID,Instance
+pl_ps_irq0,HDMI GT Controller
+pl_ps_irq1,HDMI Tx subsystem
+pl_ps_irq2,Video Mixer
+pl_ps_irq3,HDMI I2C
+pl_ps_irq4,AXI Performance Monitor
+pl_ps_irq5,Audio formatter memory-mapped to stream
+pl_ps_irq6,MIPI RX subsytem
+pl_ps_irq7,MIPI I2C
+pl_ps_irq8,Frame buffer write interrupt

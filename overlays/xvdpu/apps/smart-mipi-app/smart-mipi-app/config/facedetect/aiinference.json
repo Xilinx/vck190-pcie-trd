@@ -1,0 +1,21 @@
+{
+   "vvas-library-repo": "/usr/lib/",
+   "inference-level":1,
+   "inference-max-queue":30,
+   "attach-ppe-outbuf": false,
+   "low-latency":false,
+   "kernel" : {
+       "library-name":"libvvas_xdpuinfer.so",
+       "config": {
+           "model-name" : "densebox_640_360",
+           "model-class" : "FACEDETECT",
+           "model-format" : "RGB",
+           "batch-size":1,
+           "model-path" : "/usr/share/vitis_ai_library/models/",
+           "run_time_model" : false,
+           "need_preprocess" : false,
+           "performance_test" : false,
+           "debug_level" : 0
+       }
+   }
+}

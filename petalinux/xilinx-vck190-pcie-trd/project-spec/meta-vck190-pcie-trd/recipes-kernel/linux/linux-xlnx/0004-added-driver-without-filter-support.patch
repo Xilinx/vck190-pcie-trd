@@ -1,0 +1,49 @@
+From 08a0e233a7404f0d57647f17ef7c558ab9a79637 Mon Sep 17 00:00:00 2001
+From: thippesw <thippesw@xilinx.com>
+Date: Wed, 23 Jun 2021 20:03:28 -0600
+Subject: [PATCH] added driver without filter support
+
+---
+ drivers/misc/xilinx_pci_endpoint.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/misc/xilinx_pci_endpoint.c b/drivers/misc/xilinx_pci_endpoint.c
+index 955c29b92c48..06b9ebabbac4 100644
+--- a/drivers/misc/xilinx_pci_endpoint.c
++++ b/drivers/misc/xilinx_pci_endpoint.c
+@@ -99,6 +99,7 @@
+ #define GET_FILTER_TYPE           0xd
+ #define ALLOC_DMA_BUFF            0xe
+ #define RELEASE_DMA_BUFF          0xf
++#define DIRECT_COPY               0x1a
+ 
+ #define WIDTH_SHIFT               0x0
+ #define WIDTH_MASK                0xFFFF
+@@ -434,7 +435,14 @@ static int pciep_mmap(struct dma_buf *dmabuf,
+ 	return dma_mmap_coherent(this->dma_dev, vma, virt,
+ 				 phys, this->alloc_size);
+ }
++static int  pciep_direct_copy(struct pciep_driver_data *this, char __user *argp)
++{
++        int ret = 0;
++        pr_info("Info message no. %s\n",__func__);
+ 
++        this->write_phys_addr = this->read_phys_addr;
++        return ret;
++}
+ static int pciep_dmabuf_free(struct pciep_driver_data *this, char __user *argp)
+ {
+ 
+@@ -619,6 +627,9 @@ static long pciep_driver_file_ioctl(struct file *file, unsigned int cmd,
+ 	case RELEASE_DMA_BUFF:
+ 			ret = pciep_dmabuf_free(this, argp);
+ 			return ret;
++	case DIRECT_COPY:
++                        ret = pciep_direct_copy(this, argp);
++                        return ret; 
+ 	default:
+ 		return -ENOTTY;
+ 	}
+-- 
+2.17.1
+

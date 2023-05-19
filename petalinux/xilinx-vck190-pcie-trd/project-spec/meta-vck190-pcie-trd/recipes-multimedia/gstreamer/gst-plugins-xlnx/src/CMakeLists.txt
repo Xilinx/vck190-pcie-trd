@@ -1,0 +1,2 @@
+add_subdirectory(gstxlnxvideosink)
+add_subdirectory(gstxlnxvideosrc)

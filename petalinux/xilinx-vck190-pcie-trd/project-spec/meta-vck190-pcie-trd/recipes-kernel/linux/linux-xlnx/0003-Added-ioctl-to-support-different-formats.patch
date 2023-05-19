@@ -1,0 +1,687 @@
+From 59071211a7944c9b8f776bdfb8787588b759f7bc Mon Sep 17 00:00:00 2001
+From: Manjuraehmad <manjurae@xilinx.com>
+Date: Tue, 21 Apr 2020 05:08:46 -0600
+Subject: [PATCH 3/3] Added ioctl to support different formats
+
+- Added ioctl to provide format information
+  from PCIe Host application to PCIe endpoint application
+- Added profile support from PCIe Host to PCIe endpoint
+  application
+
+Signed-off-by: Manjuraehmad <manjurae@xilinx.com>
+---
+ drivers/misc/xilinx_pci_endpoint.c | 462 +++++++++++++++++++++++++++----------
+ 1 file changed, 346 insertions(+), 116 deletions(-)
+
+diff --git a/drivers/misc/xilinx_pci_endpoint.c b/drivers/misc/xilinx_pci_endpoint.c
+index 8d16ae4..955c29b 100644
+--- a/drivers/misc/xilinx_pci_endpoint.c
++++ b/drivers/misc/xilinx_pci_endpoint.c
+@@ -43,6 +43,8 @@
+ #include <linux/version.h>
+ #include <linux/of_address.h>
+ #include <linux/of_irq.h>
++#include <linux/dma-buf.h>
++#include <linux/dma-mapping.h>
+ #include <asm/page.h>
+ #include <asm/byteorder.h>
+ 
+@@ -68,8 +70,8 @@
+ #define PCIRC_READ_FILE_LENGTH     0x40
+ #define PCIRC_READ_BUFFER_TRANSFER_DONE 0x44
+ #define PCIRC_WRITE_BUFFER_TRANSFER_DONE 0x48
+-#define PCIRC_ENC_PARAMS_1        0x4c
+-#define PCIRC_ENC_PARAMS_2        0x50
++#define PCIRC_KERNEL_MODE	      0x4c
++#define PCIRC_FILTER_TYPE         0x50
+ #define PCIRC_RAW_RESOLUTION      0x54
+ #define PCIRC_USECASE_MODE        0x58
+ #define PCIRC_READ_BUFFER_TRANSFER_DONE_INTR 0x68
+@@ -83,7 +85,7 @@
+ #define SET_TRANSFER_DONE        0x1
+ 
+ #define GET_FILE_LENGTH			  0x0
+-#define GET_ENC_PARAMS  		  0x1
++#define GET_KERNEL_MODE  		  0x1
+ #define SET_READ_OFFSET 		  0x2
+ #define SET_WRITE_OFFSET		  0x3
+ #define SET_READ_TRANSFER_DONE    0x5
+@@ -93,6 +95,10 @@
+ #define GET_RESOLUTION            0x9
+ #define GET_MODE                  0xa
+ #define GET_FPS                   0xb
++#define GET_FORMAT                0xc
++#define GET_FILTER_TYPE           0xd
++#define ALLOC_DMA_BUFF            0xe
++#define RELEASE_DMA_BUFF          0xf
+ 
+ #define WIDTH_SHIFT               0x0
+ #define WIDTH_MASK                0xFFFF
+@@ -100,8 +106,10 @@
+ #define HEIGHT_MASK               0xFFFF
+ #define USE_CASE_MODE_SHIFT       0x0
+ #define USE_CASE_MODE_MASK        0x3
+-#define FPS_SHIFT                 0x2
++#define FPS_SHIFT                 0x5
+ #define FPS_MASK                  0x3FF
++#define FORMAT_SHIFT              0x2
++#define FORMAT_MASK               0x7
+ 
+ #define L2CACHE_SHIFT             0x0
+ #define L2CACHE_MASK		      0x1
+@@ -126,12 +134,32 @@
+ #define ENC_TYPE_MASK			  0x3
+ #define GOP_MODE_SHIFT			  0xf
+ #define GOP_MODE_MASK			  0x3
+-#define LATENCY_MODE_SHIFT		  0x11
+-#define LATENCY_MODE_MASK	      0x3
++#define PROFILE_SHIFT			  0x12
++#define PROFILE_MASK			  0x3
++#define LATENCY_MODE_SHIFT		  0x15
++#define LATENCY_MODE_MASK		  0x3
+ 
+ #define READ_BUF_HIGH_OFFSET      0xFFFF0000
+ #define WRITE_BUF_HIGH_OFFSET     0xFFFF0000
+ 
++/**
++ * _PGPROT_NONCACHED    : vm_page_prot value when ((sync_mode & SYNC_MODE_MASK)
++ *			== SYNC_MODE_NONCACHED)
++ * _PGPROT_WRITECOMBINE : vm_page_prot value when ((sync_mode & SYNC_MODE_MASK)
++ *			== SYNC_MODE_WRITECOMBINE)
++ * _PGPROT_DMACOHERENT  : vm_page_prot value when ((sync_mode & SYNC_MODE_MASK)
++ *			== SYNC_MODE_DMACOHERENT )
++ */
++#if defined(CONFIG_ARM)
++#define _PGPROT_NONCACHED(vm_page_prot)    pgprot_noncached(vm_page_prot)
++#elif defined(CONFIG_ARM64)
++#define _PGPROT_NONCACHED(vm_page_prot)    pgprot_writecombine(vm_page_prot)
++#else
++#define _PGPROT_NONCACHED(vm_page_prot)    pgprot_noncached(vm_page_prot)
++#endif
++
++
++
+ static DEFINE_IDA(pciep_device_ida);
+ static dev_t  pciep_device_number;
+ static bool pciep_platform_driver_done;
+@@ -142,50 +170,61 @@ static DEFINE_MUTEX(pcie_write_mutex);
+ /**
+  * struct pciep_driver_data - Plmem driver data
+  * @sys_dev: character device pointer
++ * @dma_dev: Device pointer
++ * @read_dmabuf: DMA buf pointer for read buffer
++ * @write_dmabuf: DMA buf pointer for write buffer
++ * @regs: points to BARMAP region
++ * @read_virt_addr: virtual address for read memory region
++ * @write_virt_addr: virtual address for write memory region
+  * @cdev: character device structure
+- * @complete: completion variable
+- * @device_number: character driver device number
+- * @is_open: holds whether file is opened
+- * @size: size of memory pool
+- * @count: no.of bytes to transfer
+- * @virt_addr: virtual address of memory region
+- * @phys_addr: physical address of memory region
+- * @mem_used: holds whether pool is uses or not
++ * @read_complete: completion variable for read
++ * @write_complete: completion variable for write
++ * @mutex_lock: lock for dma buf attachments
++ * @attachments: list of dma_buf_attachment 
++ * @device_number: Minor number
++ * @read_phys_addr: physical address for read memory region
++ * @write_phys_addr: physical address for write memory region
++ * @alloc_size: size of memory pool
++ * @rd_irq: read interrupt number
++ * @wr_irq: write interrupt number
++ * @host_done_irq: Host done interrupt number
++ * @read_req: Read or write request from application.
+  */
+ struct pciep_driver_data {
+ 	struct device *sys_dev;
+ 	struct device *dma_dev;
++	struct dma_buf *read_dmabuf;
++	struct dma_buf *write_dmabuf;
+ 	void __iomem *regs;
+-	int rd_irq;
+-	int wr_irq;
+-	int host_done_irq;
++	void *read_virt_addr;
++	void *write_virt_addr;
+ 	struct cdev cdev;
+ 	struct completion read_complete;
+ 	struct completion write_complete;
++	struct mutex lock;
++	struct list_head attachments;
+ 	dev_t device_number;
+-	bool is_open;
+-	int size;
+-	int count;
+-	void *read_virt_addr;
+-	void *write_virt_addr;
+ 	dma_addr_t read_phys_addr;
+ 	dma_addr_t write_phys_addr;
++	size_t alloc_size;
++	int rd_irq;
++	int wr_irq;
++	int host_done_irq;
++	int read_req;
++};
++
++struct pciep_alloc_dma_buf {
++	int fd;	/* fd */
++	unsigned int flags;/* flags to map with */
++	size_t size;	/* size */
++};
++
++struct pciep_dma_buf_attachment {
++	struct device *dev;
++	struct sg_table sgt;
++	struct list_head node;
+ };
+ 
+-typedef struct enc_params {
+-    bool   enable_l2Cache;
+-    bool   low_bandwidth;
+-    bool   filler_data;
+-    unsigned int      bitrate;
+-    unsigned int      gop_len;
+-    unsigned int      b_frame;
+-    unsigned int      slice;
+-    unsigned int      qp_mode;
+-    unsigned int      rc_mode;
+-    unsigned int      enc_type;
+-    unsigned int      gop_mode;
+-    unsigned int      latency_mode;
+-} enc_params;
+ 
+ typedef struct resolution {
+     unsigned int      width;
+@@ -235,7 +274,6 @@ static int pciep_driver_file_open(struct inode *inode, struct file *file)
+ 
+ 	this = container_of(inode->i_cdev, struct pciep_driver_data, cdev);
+ 	file->private_data = this;
+-	this->is_open = 1;
+ 
+ 	pcie_reset_all(this);
+ 
+@@ -253,9 +291,6 @@ static int pciep_driver_file_release(struct inode *inode, struct file *file)
+ 	struct pciep_driver_data *this = file->private_data;
+ 	u32 value;
+ 
+-	/* Terminate DMA transfer and reset required flags */
+-	this->is_open = 0;
+-
+ 	/* clear all the registers */
+ 	reg_write(this, PCIEP_READ_BUFFER_OFFSET, PCIEP_CLR_REG);
+ 	value = reg_read(this, PCIEP_READ_BUFFER_READY);
+@@ -267,6 +302,31 @@ static int pciep_driver_file_release(struct inode *inode, struct file *file)
+ 	return 0;
+ }
+ 
++static ssize_t pciep_show_map_type(struct device *dev,
++			    struct device_attribute *attr,
++			    char *buf)
++{
++	struct pciep_driver_data *this = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%d", this->read_req);
++}
++
++static ssize_t pciep_store_map_type(struct device *dev,
++			     struct device_attribute *attr,
++			     const char *buf, size_t len)
++{
++	struct pciep_driver_data *this = dev_get_drvdata(dev);
++	unsigned long val;
++	int ret;
++
++	if (kstrtoul(buf, 0, &val))
++		return -EINVAL;
++
++	this->read_req = val;
++	return sizeof(ret);
++}
++
++
+ /**
+  * pciep_driver_file_mmap() - This is the driver memory map function.
+  * @file:	Pointer to the file structure.
+@@ -278,6 +338,198 @@ static int pciep_driver_file_mmap(struct file *file, struct vm_area_struct *vma)
+ 	return 0;
+ }
+ 
++
++static int pciep_dma_buf_attach(struct dma_buf *dmabuf,
++				  struct dma_buf_attachment *attachment)
++{
++	struct pciep_driver_data *this = dmabuf->priv;
++	struct pciep_dma_buf_attachment *a;
++	int ret;
++	void *virt;
++	dma_addr_t phys;
++
++	a = kzalloc(sizeof(*a), GFP_KERNEL);
++	if (!a)
++		return -ENOMEM;
++
++	if (this->read_req) {
++		virt = this->read_virt_addr;
++		phys = this->read_phys_addr;
++	} else {
++		virt = this->write_virt_addr;
++		phys = this->write_phys_addr;
++	}
++
++	ret = dma_get_sgtable(this->dma_dev, &a->sgt, virt,
++			      phys, this->alloc_size);
++	if (ret < 0) {
++		dev_err(this->dma_dev, "failed to get scatterlist from DMA API\n");
++		kfree(a);
++		return -EINVAL;
++	}
++
++	a->dev = attachment->dev;
++	INIT_LIST_HEAD(&a->node);
++	attachment->priv = a;
++
++	mutex_lock(&this->lock);
++	list_add(&a->node, &this->attachments);
++	mutex_unlock(&this->lock);
++
++	return 0;
++}
++
++static void pciep_dma_buf_detatch(struct dma_buf *dmabuf,
++				    struct dma_buf_attachment *attachment)
++{
++	struct pciep_dma_buf_attachment *a = attachment->priv;
++	struct pciep_driver_data *this = dmabuf->priv;
++
++	mutex_lock(&this->lock);
++	list_del(&a->node);
++	mutex_unlock(&this->lock);
++	sg_free_table(&a->sgt);
++	kfree(a);
++}
++
++
++static struct sg_table *
++pciep_map_dma_buf(struct dma_buf_attachment *attachment,
++		    enum dma_data_direction dir)
++{
++	struct pciep_dma_buf_attachment *a = attachment->priv;
++	struct sg_table *table;
++
++	table = &a->sgt;
++
++	if (!dma_map_sg(attachment->dev, table->sgl, table->nents, dir))
++		return ERR_PTR(-ENOMEM);
++
++	return table;
++}
++
++static void pciep_unmap_dma_buf(struct dma_buf_attachment *attach,
++				  struct sg_table *table,
++				  enum dma_data_direction dir)
++{
++	dma_unmap_sg(attach->dev, table->sgl, table->nents, dir);
++}
++
++static int pciep_mmap(struct dma_buf *dmabuf,
++			struct vm_area_struct *vma)
++{
++	struct pciep_driver_data *this = dmabuf->priv;
++	size_t size = vma->vm_end - vma->vm_start;
++	void *virt;
++	dma_addr_t phys;
++
++	if (this->read_req) {
++		virt = this->read_virt_addr;
++		phys = this->read_phys_addr;
++	} else {
++		virt = this->write_virt_addr;
++		phys = this->write_phys_addr;
++	}
++
++	return dma_mmap_coherent(this->dma_dev, vma, virt,
++				 phys, this->alloc_size);
++}
++
++static int pciep_dmabuf_free(struct pciep_driver_data *this, char __user *argp)
++{
++
++	void *virt;
++	dma_addr_t phys;
++	
++	if (this->read_req) {
++		virt = this->read_virt_addr;
++		phys = this->read_phys_addr;
++	} else {
++		virt = this->write_virt_addr;
++		phys = this->write_phys_addr;
++	}
++	dma_free_coherent(this->dma_dev, this->alloc_size,
++                 virt, phys);
++	return 0;
++}
++
++static void pciep_release(struct dma_buf *dmabuf)
++{
++
++}
++
++static const struct dma_buf_ops pciep_dma_buf_ops = {
++	.attach = pciep_dma_buf_attach,
++	.detach = pciep_dma_buf_detatch,
++	.map_dma_buf = pciep_map_dma_buf,
++	.unmap_dma_buf = pciep_unmap_dma_buf,
++	.mmap = pciep_mmap,
++	.release = pciep_release,
++};
++
++static int pciep_dmabuf_alloc(struct pciep_driver_data *this, char __user *argp)
++{
++	struct pciep_alloc_dma_buf bp;
++	DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
++	int err;
++	void *virt;
++	dma_addr_t phys;
++	struct dma_buf *dmabuf;
++
++	if (copy_from_user(&bp, argp, sizeof(bp)))
++		return -EFAULT;
++
++	INIT_LIST_HEAD(&this->attachments);
++	mutex_init(&this->lock);
++
++	/* allocate read buffer */
++	virt = dma_alloc_coherent(this->dma_dev, bp.size,
++			&phys, GFP_KERNEL);
++	if (IS_ERR_OR_NULL(virt)) {
++		dev_err(this->dma_dev, "%s dma_alloc_coherent() failed\n",
++				__func__);
++		this->read_virt_addr = NULL;
++		return -ENOMEM;
++	}
++	if (this->read_req) {
++		this->read_virt_addr = virt;
++		this->read_phys_addr = phys;
++	} else {
++		this->write_virt_addr = virt;
++		this->write_phys_addr = phys;
++	}
++
++	exp_info.ops = &pciep_dma_buf_ops;
++	exp_info.size = bp.size;
++	exp_info.flags = O_RDWR;
++	exp_info.priv = this;
++	dmabuf = dma_buf_export(&exp_info);
++	if (IS_ERR(dmabuf)) {
++		err = PTR_ERR(dmabuf);
++		dma_free_coherent(this->dma_dev, bp.size,
++                 virt, phys);
++		return err;
++	}
++
++	bp.fd = dma_buf_fd(dmabuf, O_ACCMODE);
++	if (bp.fd < 0) {
++		dma_buf_put(dmabuf);
++		return -EINVAL;
++	}
++
++	if (copy_to_user(argp, &bp, sizeof(bp))) {
++		dma_buf_put(dmabuf);
++		return -EFAULT;
++	}
++	if (this->read_req)
++		this->read_dmabuf = dmabuf;
++	else
++		this->write_dmabuf = dmabuf;
++
++	this->alloc_size = bp.size;
++	return 0;
++}
++
+ static long pciep_driver_file_ioctl(struct file *file, unsigned int cmd,
+ 			unsigned long arg)
+ {
+@@ -285,9 +537,9 @@ static long pciep_driver_file_ioctl(struct file *file, unsigned int cmd,
+ 	unsigned int value;
+ 	u64 value1;
+ 	u64 size;
+-	struct enc_params params;
+ 	struct resolution res;
+ 	int ret;
++	char __user *argp = (char __user *)arg;
+ 
+ 	switch (cmd) {
+ 	case GET_FILE_LENGTH:
+@@ -296,24 +548,15 @@ static long pciep_driver_file_ioctl(struct file *file, unsigned int cmd,
+ 			size = value | value1 << 32;
+ 			ret = copy_to_user((u64 *) arg, &size, sizeof(size));
+ 			return ret;
++	
++	case GET_KERNEL_MODE:
++			value = reg_read(this, PCIRC_KERNEL_MODE);
++			ret = copy_to_user((u32 *) arg, &value, sizeof(value));
++			return ret;
+ 
+-	case GET_ENC_PARAMS:
+-			value = reg_read(this, PCIRC_ENC_PARAMS_1);
+-			params.enable_l2Cache = (value>>L2CACHE_SHIFT) & L2CACHE_MASK;
+-			params.low_bandwidth = (value>>LOW_BANDWIDTH_SHIFT) & LOW_BANDWIDTH_MASK;
+-			params.filler_data = (value>>FILLER_DATA_SHIFT) & FILLER_DATA_MASK;
+-			params.bitrate = (value>>BITRATE_SHIFT) & BITRATE_MASK;
+-			params.gop_len = (value>>GOP_LENGTH_SHIFT) & GOP_LENGTH_MASK;
+-
+-			value1 = reg_read(this, PCIRC_ENC_PARAMS_2);
+-			params.b_frame = (value1>>B_FRAME_SHIFT) & B_FRAME_MASK;
+-			params.slice = (value1>>SLICE_SHIFT) & SLICE_MASK;
+-			params.qp_mode = (value1>>QP_MODE_SHIFT) & QP_MODE_MASK;
+-			params.rc_mode = (value1>>RC_MODE_SHIFT) & RC_MODE_MASK;
+-			params.enc_type = (value1>>ENC_TYPE_SHIFT) & ENC_TYPE_MASK;
+-			params.gop_mode = (value1>>GOP_MODE_SHIFT) & GOP_MODE_MASK;
+-			params.latency_mode = (value1>>LATENCY_MODE_SHIFT) & LATENCY_MODE_MASK;
+-			ret = copy_to_user((struct enc_params *) arg, &params, sizeof(params));
++	case GET_FILTER_TYPE:
++			value = reg_read(this, PCIRC_FILTER_TYPE);
++			ret = copy_to_user((u32 *) arg, &value, sizeof(value));
+ 			return ret;
+ 
+ 	case GET_RESOLUTION:
+@@ -323,29 +566,22 @@ static long pciep_driver_file_ioctl(struct file *file, unsigned int cmd,
+ 			ret = copy_to_user((struct resolution *) arg, &res, sizeof(res));
+ 			return ret;
+ 
+-	case GET_MODE:
+-			value = reg_read(this, PCIRC_USECASE_MODE);
+-			value = (value >> USE_CASE_MODE_SHIFT) & USE_CASE_MODE_MASK;
+-			ret = copy_to_user((u32 *) arg, &value, sizeof(value));
+-			return ret;
+-
+-
+ 	case SET_READ_OFFSET:
+ 			ret = copy_from_user(&value1, (u64 *) arg, sizeof(value1));
+ 			reg_write(this, PCIEP_READ_BUFFER_OFFSET, value1);
+-		        value = reg_read(this, PCIEP_READ_BUFFER_READY);
+-		        value &= ~READ_BUF_HIGH_OFFSET;
+-		        value |= (value1 >> 16) & READ_BUF_HIGH_OFFSET;
+-		        reg_write(this, PCIEP_READ_BUFFER_READY, value);
++		    value = reg_read(this, PCIEP_READ_BUFFER_READY);
++		    value &= ~READ_BUF_HIGH_OFFSET;
++		    value |= (value1 >> 16) & READ_BUF_HIGH_OFFSET;
++		    reg_write(this, PCIEP_READ_BUFFER_READY, value);
+ 			return ret;
+ 
+ 	case SET_WRITE_OFFSET:
+ 			ret = copy_from_user(&value1, (u64 *) arg, sizeof(value1));
+ 			reg_write(this, PCIEP_WRITE_BUFFER_OFFSET, value1);
+-		        value = reg_read(this, PCIEP_WRITE_BUFFER_READY);
+-		        value &= ~WRITE_BUF_HIGH_OFFSET;
+-		        value |= (value1 >> 16) & WRITE_BUF_HIGH_OFFSET;
+-		        reg_write(this, PCIEP_WRITE_BUFFER_READY, value);
++		    value = reg_read(this, PCIEP_WRITE_BUFFER_READY);
++		    value &= ~WRITE_BUF_HIGH_OFFSET;
++		    value |= (value1 >> 16) & WRITE_BUF_HIGH_OFFSET;
++		    reg_write(this, PCIEP_WRITE_BUFFER_READY, value);
+ 			return ret;
+ 
+ 	case SET_READ_TRANSFER_DONE:
+@@ -370,6 +606,19 @@ static long pciep_driver_file_ioctl(struct file *file, unsigned int cmd,
+ 			ret = copy_to_user((u32 *) arg, &value, sizeof(value));
+ 			return ret;
+ 
++	case GET_FORMAT:
++			value = reg_read(this, PCIRC_USECASE_MODE);
++			value = (value >> FORMAT_SHIFT) & FORMAT_MASK;
++			ret = copy_to_user((u32 *) arg, &value, sizeof(value));
++			return ret;
++	
++	case ALLOC_DMA_BUFF:
++			ret = pciep_dmabuf_alloc(this, argp);
++			return ret;
++    
++	case RELEASE_DMA_BUFF:
++			ret = pciep_dmabuf_free(this, argp);
++			return ret;
+ 	default:
+ 		return -ENOTTY;
+ 	}
+@@ -388,22 +637,12 @@ static ssize_t pciep_driver_file_read(struct file *file, char __user *buff,
+ {
+ 	struct pciep_driver_data *this = file->private_data;
+ 	u32 value;
+-	int ret;
++	int ret = 0;
+ 
+ 	/* check the size */
+ 	if (count <= 0)
+ 		return -EINVAL;
+ 
+-	/* allocate the buffer based on the size from applcation */
+-	this->read_virt_addr = dma_alloc_coherent(this->dma_dev, count,
+-					     &(this->read_phys_addr), GFP_KERNEL);
+-	if (IS_ERR_OR_NULL(this->read_virt_addr)) {
+-		dev_err(this->dma_dev, "%s dma_alloc_coherent() failed\n",
+-			__func__);
+-		this->read_virt_addr = NULL;
+-		return -ENOMEM;
+-	}
+-
+ 	reg_write(this, PCIEP_READ_BUFFER_ADDR, this->read_phys_addr);
+ 	reg_write(this, PCIEP_READ_BUFFER_SIZE, count);
+ 	value = reg_read(this, PCIEP_READ_BUFFER_READY);
+@@ -411,13 +650,7 @@ static ssize_t pciep_driver_file_read(struct file *file, char __user *buff,
+ 	reg_write(this, PCIEP_READ_BUFFER_READY, value);
+ 
+ 	/* wait for done event */
+-	wait_for_completion(&this->read_complete);
+-
+-	ret = copy_to_user(buff, this->read_virt_addr, count);
+-
+-	/* free up the allocated memory */
+-	dma_free_coherent(this->dma_dev, count,
+-                 this->read_virt_addr, this->read_phys_addr);
++	wait_for_completion_interruptible(&this->read_complete);
+ 
+ 	return ret;
+ }
+@@ -435,27 +668,13 @@ static ssize_t pciep_driver_file_write(struct file *file,
+ 				       size_t count, loff_t *ppos)
+ {
+ 	struct pciep_driver_data *this = file->private_data;
+-	int ret;
++	int ret = 0;
+ 	u32 value;
+ 
+ 	/* check the size */
+ 	if (count <= 0)
+ 		return -EINVAL;
+ 
+-	/* dma buffer allocation */
+-	this->write_virt_addr = dma_alloc_coherent(this->dma_dev, count,
+-					     &(this->write_phys_addr), GFP_KERNEL);
+-	if (IS_ERR_OR_NULL(this->write_virt_addr)) {
+-		dev_err(this->dma_dev, "%s dma_alloc_coherent() failed\n",
+-			__func__);
+-		this->write_virt_addr = NULL;
+-		return -ENOMEM;
+-	}
+-
+-	ret = copy_from_user(this->write_virt_addr, buff, count);
+-	if (ret)
+-		goto out;
+-
+ 	reg_write(this, PCIEP_WRITE_BUFFER_ADDR, this->write_phys_addr);
+ 	reg_write(this, PCIEP_WRITE_BUFFER_SIZE, count);
+ 	value = reg_read(this, PCIEP_WRITE_BUFFER_READY);
+@@ -463,12 +682,7 @@ static ssize_t pciep_driver_file_write(struct file *file,
+ 	reg_write(this, PCIEP_WRITE_BUFFER_READY, value);
+ 
+ 	/* wait for done event */
+-	wait_for_completion(&this->write_complete);
+-out:
+-	/* free the allocated memory */
+-	dma_free_coherent(this->dma_dev, count,
+-                 this->write_virt_addr, this->write_phys_addr);
+-
++	wait_for_completion_interruptible(&this->write_complete);
+ 	return ret;
+ }
+ 
+@@ -599,9 +813,8 @@ static struct pciep_driver_data *pciep_driver_create(const char *name,
+ 	this = kzalloc(sizeof(*this), GFP_KERNEL);
+ 	if (IS_ERR_OR_NULL(this))
+ 		goto failed;
+-	/* make this->device_number and this->size */
++	/* make this->device_number */
+ 	this->device_number = MKDEV(MAJOR(pciep_device_number), minor);
+-	this->size          = size;
+ 	/* register /sys/class/ */
+ 	this->sys_dev = device_create(pciep_sys_class,
+ 			parent,
+@@ -655,6 +868,19 @@ static struct pciep_driver_data *pciep_driver_create(const char *name,
+ 	return NULL;
+ }
+ 
++static DEVICE_ATTR(map_type, S_IRUGO | S_IWUSR,
++		   pciep_show_map_type, pciep_store_map_type);
++
++static struct attribute *pciep_attributes[] = {
++	&dev_attr_map_type.attr,
++	NULL,
++};
++
++static const struct attribute_group pciep_attr_group = {
++	.attrs = pciep_attributes,
++};
++
++
+ /**
+  * pciep_platform_driver_probe() -  Probe call for the device.
+  * @pdev:	handle to the platform device structure.
+@@ -729,8 +955,11 @@ static int pciep_platform_driver_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "Unable to register IRQ\n");
+ 		goto failed;
+ 	}
+-
+-
++	ret = sysfs_create_group(&pdev->dev.kobj, &pciep_attr_group);
++	if (ret) {
++		dev_err(&pdev->dev, "sysfs creation failed\n");
++		return ret;
++	}
+ 	dev_set_drvdata(&pdev->dev, driver_data);
+ 	dev_info(&pdev->dev, "pcie driver probe success.\n");
+ 	return 0;
+@@ -752,6 +981,7 @@ static int pciep_driver_destroy(struct pciep_driver_data *this)
+ 	if (!this)
+ 		return -ENODEV;
+ 
++	sysfs_remove_group(&this->dma_dev->kobj, &pciep_attr_group);
+ 	ida_simple_remove(&pciep_device_ida, MINOR(this->device_number));
+ 	cdev_del(&this->cdev);
+ 	kfree(this);
+-- 
+2.7.4
+

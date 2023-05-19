@@ -1,0 +1,18 @@
+{
+  "vvas-library-repo": "/usr/lib/vvas",
+  "element-mode":"transform",
+  "kernel": {
+      "library-name": "libvvas_xfilter2d_sw.so",
+      "config": {
+        "debug_level" : 1,
+        "in_fourcc" : "YUY2",
+        "out_fourcc" : "YUY2",
+        "filter_preset" : "identity",
+        "filter_coefficients" : [
+          [ 0, 0, 0],
+          [ 0, 1, 0],
+          [ 0, 0, 0]
+        ]
+      }
+    }
+}

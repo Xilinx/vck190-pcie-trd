@@ -1,0 +1,4 @@
+[submodule "vdf"]
+	path = vdf
+	url = https://gitenterprise.xilinx.com/PAEG/vdf.git
+	branch = 2019.2/versal

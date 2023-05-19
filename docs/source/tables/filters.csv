@@ -1,0 +1,12 @@
+Filter_type,Filter name
+0,Blur filter
+1,Edge filter
+2,Horizontal Edge filter
+3,Vertical Edge filter
+4,Emboss filter
+5,HGRAD filter
+6,VGRAD filter
+7,Identity filter
+8,Sharpe filter
+9,Horizontal Sobel filter
+10,Vertical Sobel filter
