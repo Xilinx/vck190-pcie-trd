@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+<!-- OneTrust Cookies Consent Notice start for xilinx.github.io -->
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script="03af8d57-0a04-47a6-8f10-322fa00d8fc7" ></script>
+<script type="text/javascript">
+function OptanonWrapper() { }
+</script>
+<!-- OneTrust Cookies Consent Notice end for xilinx.github.io -->
+<!-- Google Tag Manager -->
+<script type="text/plain" class="optanon-category-C0002">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5RHQV7');</script>
+<!-- End Google Tag Manager -->
+  <title>5.1. Software Architecture of the Platform &mdash; Versal PCIe TRD 2022.2 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="5.2. Hardware Architecture of the Platform" href="arch-hw.html" />
+    <link rel="prev" title="5. Architecture" href="../arch.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-5RHQV7" height="0" width="0" style="display:none;visibility:hidden" class="optanon-category-C0002"></iframe></noscript>
+<!-- End Google Tag Manager --> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+            <a href="../index.html" class="icon icon-home"> Versal PCIe TRD
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../revision.html">1. Revision History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">2. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../run.html">3. Run the Prebuilt Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">4. Build an Image</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../arch.html">5. Architecture</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">5.1. Software Architecture of the Platform</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">5.1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#video-capture">5.1.2. Video Capture</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#media-source-bin-gstreamer-plugin">5.1.2.1. Media Source Bin GStreamer Plugin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#driver-architecture">5.1.2.2. Driver Architecture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#media-framework">5.1.2.3. Media Framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#v4l2-framework">5.1.2.4. V4L2 Framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#video-ip-drivers">5.1.2.5. Video IP Drivers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#display">5.1.3. Display</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kms-sink-gstreamer-plugin">5.1.3.1. KMS Sink GStreamer Plugin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#libdrm">5.1.3.2. Libdrm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#drm-kms-kernel-subsystem">5.1.3.3. DRM/KMS Kernel Subsystem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#direct-rendering-manager">5.1.3.4. Direct Rendering Manager</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kernel-mode-setting">5.1.3.5. Kernel Mode Setting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#crtc">5.1.3.6. CRTC</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#plane">5.1.3.7. Plane</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#encoder">5.1.3.8. Encoder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#connector">5.1.3.9. Connector</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#qdma-drivers">5.1.4. QDMA Drivers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pcie-end-point-driver">5.1.4.1. PCIe End Point Driver</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#gstreamer">5.1.5. GStreamer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#plugins">5.1.5.1. Plugins</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#capabilities">5.1.5.2. Capabilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline-control">5.1.5.3. Pipeline Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#allocators">5.1.5.4. Allocators</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#host-machine-software-stack">5.1.6. Host machine software stack</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#host-machine-userspace-software-components">5.1.6.1. Host machine userspace software components</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#communication-between-x86-machine-host-and-target">5.1.7. Communication between x86 machine (Host) and  target</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#details-on-data-and-control-information-flow">5.1.8. Details on Data and control information Flow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#at-x86-host-machine">5.1.8.1. At x86 Host machine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#at-endpoint">5.1.8.2. At Endpoint</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#supported-use-cases">5.1.9. Supported Use cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#usecase-1">5.1.9.1. Usecase-1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usecase-2">5.1.9.2. Usecase-2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usecase-3">5.1.9.3. Usecase-3</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usecase-4">5.1.9.4. Usecase-4</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="arch-hw.html">5.2. Hardware Architecture of the Platform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arch-filter2d.html">5.3. Accelerator - 2D Filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arch-xvdpu.html">5.4. Accelerator - XVDPU</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../known-issues.html">6. Known Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../support.html">7. Support</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: black" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Versal PCIe TRD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../arch.html"><span class="section-number">5. </span>Architecture</a> &raquo;</li>
+      <li><span class="section-number">5.1. </span>Software Architecture of the Platform</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/arch/arch-sw.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="software-architecture-of-the-platform">
+<h1><span class="section-number">5.1. </span>Software Architecture of the Platform<a class="headerlink" href="#software-architecture-of-the-platform" title="Permalink to this heading">¶</a></h1>
+<section id="introduction">
+<h2><span class="section-number">5.1.1. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h2>
+<p>This chapter describes the application processing unit (APU) Linux
+software stack and x86 host software stack. The stack and vertical domains are shown in the
+following figure.</p>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/sw-stack.png"><img alt="APU Linux Software Stack and Vertical Domains" src="../_images/sw-stack.png" style="width: 1000px;" /></a>
+<figcaption>
+<p><span class="caption-text">Linux Software Stack and Vertical Domains</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>The Endpoint software stack is horizontally divided into the following layers:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Application layer (user-space)</dt><dd><ul>
+<li><p>G-streamer/Jupyter notebooks with a simple control and visualization interface.</p></li>
+<li><p>GStreamer multimedia framework with python bindings for video pipeline control.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Middleware layer (user-space)</dt><dd><ul>
+<li><p>Implements and exposes domain-specific functionality by means of GStreamer plugins to interface with the application layer.</p></li>
+<li><p>Provides access to kernel frameworks.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Operating system (OS) layer (kernel-space)</dt><dd><ul>
+<li><p>Provides a stable, well-defined API to user-space.</p></li>
+<li><p>Includes device drivers and kernel frameworks (subsystems).</p></li>
+<li><p>Access to hardware IPs</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Vertically, the Endpoint software components are divided by domain :</p>
+<ul class="simple">
+<li><p>Video capture</p></li>
+<li><p>Accelerator</p></li>
+<li><p>Display</p></li>
+<li><p>PCIe End-point driver</p></li>
+</ul>
+<p>The subsequent chapters describe the components of each vertical domain first and cover
+application layer components next.</p>
+</section>
+<section id="video-capture">
+<h2><span class="section-number">5.1.2. </span>Video Capture<a class="headerlink" href="#video-capture" title="Permalink to this heading">¶</a></h2>
+<p>The Video Capture software stack is depicted in the following figure
+using the single-sensor MIPI CSI capture pipeline as an example</p>
+<figure class="align-default" id="id2">
+<img alt="Video Capture Software Stack" src="../_images/video_capture.png" />
+<figcaption>
+<p><span class="caption-text">Video Capture Software Stack</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>At a high level it consists of the following layers from top to bottom:</p>
+<ul class="simple">
+<li><p>User-space layers</p>
+<ul>
+<li><p>GStreamer: Media source bin plugin (wrapper around generic v4l2src
+plugin)</p></li>
+<li><p>Media controller: Library to configure v4l subdevices and media
+devices</p></li>
+</ul>
+</li>
+<li><p>Kernel-space layers</p>
+<ul>
+<li><p>V4L2/Media subsystems: Xilinx video IP pipeline (XVIPP) driver</p></li>
+<li><p>DMA engine: Xilinx framebuffer driver</p></li>
+</ul>
+</li>
+</ul>
+<section id="media-source-bin-gstreamer-plugin">
+<h3><span class="section-number">5.1.2.1. </span>Media Source Bin GStreamer Plugin<a class="headerlink" href="#media-source-bin-gstreamer-plugin" title="Permalink to this heading">¶</a></h3>
+<p>The mediasrcbin plugin is designed to simplify the usage of live video
+capture devices in this design, otherwise the user must take care of
+initialization and configuration. The plugin is a bin element that
+includes the standard v4l2src GStreamer element. It configures the media
+pipelines of the supported video sources in this design.</p>
+<p>The v4l2src element inside the mediasrcbin element interfaces with the V4L2 Linux
+framework and the Xilinx VIPP driver through the video device node. The
+mediasrcbin element interfaces with the Media Controller Linux framework
+through the v412-subdev and media device nodes which allows you to
+configure the media pipeline and its sub-devices. It uses the
+libmediactl and libv4l2subdev libraries which provide the following
+functionality:</p>
+<ul class="simple">
+<li><p>Enumerate entities, pads and links</p></li>
+<li><p>Configure sub-devices</p>
+<ul>
+<li><p>Set media bus format</p></li>
+<li><p>Set dimensions (width/height)</p></li>
+<li><p>Set frame rate</p></li>
+<li><p>Export sub-device controls</p></li>
+</ul>
+</li>
+</ul>
+<p>The mediasrcbin plugin sets the media bus format and resolution on each
+sub-device source and sink pad for the entire media pipeline. The
+formats between pads that are connected through links need to match.
+Refer to the Media Framework section below for more information on
+entities, pads and links.</p>
+<section id="kernel-subsystems">
+<h4><span class="section-number">5.1.2.1.1. </span>Kernel Subsystems<a class="headerlink" href="#kernel-subsystems" title="Permalink to this heading">¶</a></h4>
+<p>In order to model and control video capture pipelines such as the ones
+used in this TRD on Linux systems, multiple kernel frameworks and APIs
+are required to work in concert. For simplicity, we refer to the overall
+solution as Video4Linux (V4L2) although the framework only provides part
+of the required functionality. The individual components are discussed
+in the following sections.</p>
+</section>
+</section>
+<section id="driver-architecture">
+<h3><span class="section-number">5.1.2.2. </span>Driver Architecture<a class="headerlink" href="#driver-architecture" title="Permalink to this heading">¶</a></h3>
+<p>The Video Capture Software Stack figure in the Capture section shows how
+the generic V4L2 driver model of a video pipeline is mapped to the
+single-sensor MIPI CSI-2 Rx capture pipelines. The video pipeline driver
+loads the necessary sub-device drivers and registers the device nodes it
+needs, based on the video pipeline configuration specified in the device
+tree. The framework exposes the following device node types to user
+space to control certain aspects of the pipeline:</p>
+<ul class="simple">
+<li><p>Media device node: /dev/media*</p></li>
+<li><p>Video device node: /dev/video*</p></li>
+<li><p>V4L2 sub-device node: /dev/v4l-subdev*</p></li>
+</ul>
+</section>
+<section id="media-framework">
+<h3><span class="section-number">5.1.2.3. </span>Media Framework<a class="headerlink" href="#media-framework" title="Permalink to this heading">¶</a></h3>
+<p>The main goal of the media framework is to discover the device topology
+of a video pipeline and to configure it at run-time. To achieve this,
+pipelines are modeled as an oriented graph of building blocks called entities connected through pads.</p>
+<p>An entity is a basic media hardware building block. It can correspond to a large variety of blocks such as
+physical hardware devices (e.g. image sensors), logical hardware devices
+(e.g. soft IP cores inside the PL), DMA channels or physical connectors.
+Physical or logical devices are modeled as sub-device nodes and DMA
+channels as video nodes.</p>
+<p>A pad is a connection endpoint through which an entity can interact with other entities. Data produced by an entity
+flows from the entity’s output to one or more entity inputs. A link is a
+point-to-point oriented connection between two pads, either on the same
+entity or on different entities. Data flows from a source pad to a sink
+pad.</p>
+<p>A media device node is created that allows the user space
+application to configure the video pipeline and its sub-devices through
+the libmediactl and libv4l2subdev libraries. The media controller API
+provides the following functionality:</p>
+<ul class="simple">
+<li><p>Enumerate entities, pads and links</p></li>
+<li><p>Configure pads</p>
+<ul>
+<li><p>Set media bus format</p></li>
+<li><p>Set dimensions (width/height)</p></li>
+</ul>
+</li>
+<li><p>Configure links</p></li>
+<li><p>Enable/disable</p></li>
+<li><p>Validate formats</p></li>
+</ul>
+<p>The following figures show the media graphs for MIPI CSI-2 Rx (single-sensor)
+capture pipeline as generatedby the media-ctl utility.
+The subdevices are shown in green with their corresponding control interface base
+address and subdevice node in the center. The numbers on the edges are
+pads and the solid arrows represent active links. The yellow boxes are
+video nodes that correspond to DMA channels, in this case write channels
+(outputs).</p>
+<figure class="align-default" id="id3">
+<img alt="Video Capture Media Pipeline: Single MIPI CSI-2 RX" src="../_images/single_graph.png" />
+<figcaption>
+<p><span class="caption-text">Video Capture Media Pipeline: Single MIPI CSI-2 RX</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="v4l2-framework">
+<h3><span class="section-number">5.1.2.4. </span>V4L2 Framework<a class="headerlink" href="#v4l2-framework" title="Permalink to this heading">¶</a></h3>
+<p>The V4L2 framework is responsible for capturing video frames at the video device node, typically
+representing a DMA channel, and making those video frames available to user space.
+The framework consists of multiple sub-components that provide certain functionality.</p>
+<p>Before video frames can be captured, the buffer type and pixel format need to be set using the
+VIDOC_S_FMT ioctl. On success the driver can program the hardware, allocate resources, and
+generally prepare for data exchange. Optionally, you can set additional control parameters on
+V4L devices and sub-devices. The V4L2 control framework provides ioctls for many commonly
+used, standard controls such as brightness and contrast.</p>
+<p>The videobuf2 API implements three basic buffer types but only physically contiguous memory is
+supported in this driver because of the hardware capabilities of the Frame Buffer Write IP.
+Videobuf2 provides a kernel internal API for buffer allocation and management as well as a userspace
+facing API. VIDIOC_QUERYCAP and VIDIOC_REQBUFS ioctls are used to determine the
+I/O mode and memory type. In this design, the streaming I/O mode in combination with the
+DMABUF memory type is used.</p>
+<p>DMABUF is dedicated to sharing DMA buffers between different devices, such as V4L devices or
+other video-related devices such as a DRM display device (see the GStreamer Pipeline Control
+section). In DMABUF, buffers are allocated by a driver on behalf of an application. These buffers
+are exported to the application as file descriptors.</p>
+<p>For capture applications, it is customary to queue a number of empty buffers using the
+VIDIOC_QBUF ioctl. The application waits until a filled buffer can be de-queued with the
+VIDIOC_DQBUF ioctl and re-queues the buffer when the data is no longer needed. To start and
+stop capturing applications, the VIDIOC_STREAMON and VIDIOC_STREAMOFF ioctls are used.</p>
+<p>The ioctls for buffer management, format and stream control are implemented inside the v4l2src
+plugin and the application developer does not need to know the implementation details.</p>
+</section>
+<section id="video-ip-drivers">
+<h3><span class="section-number">5.1.2.5. </span>Video IP Drivers<a class="headerlink" href="#video-ip-drivers" title="Permalink to this heading">¶</a></h3>
+<p>Xilinx adopted the V4L2 framework for most of its video IP portfolio.
+The currently supported video IPs and corresponding drivers are listed
+under V4L2. Each V4L driver has a sub-page that lists driver-specific
+details and provides pointers to additional documentation. The following
+table provides a quick overview of the drivers used in this design.</p>
+<p>Table : V4L2 Drivers Used in Capture Pipelines</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Linux Driver</p></th>
+<th class="head"><p>Function</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Xilinx Video Pipeline (XVIPP)</p></td>
+<td><ul class="simple">
+<li><p>Configures video pipeline and register media, video and sub-device nodes.</p></li>
+<li><p>Configures all entities in the pipeline and validate links.</p></li>
+<li><p>Configures and controls DMA engines (Xilinx Video Framebuffer Write).</p></li>
+<li><p>Starts/stops video stream.</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><p>Xilinx Video Processing Subsystem
+(Scaler Only configuration)</p></td>
+<td><ul class="simple">
+<li><p>Sets media bus format and resolution on input pad.</p></li>
+<li><p>Sets media bus format and resolution on output pad. (Output configuration can be different from the input configuration as
+the block enables color space conversion and scaling).</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><p>MIPI CSI-2 Rx</p></td>
+<td><ul class="simple">
+<li><p>Sets media bus format and resolution on input pad.</p></li>
+<li><p>Sets media bus format and resolution on output pad.</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><p>Xilinx Video Image Signal Processing
+(ISP)</p></td>
+<td><ul class="simple">
+<li><p>Sets media bus format and resolution on input pad.</p></li>
+<li><p>Sets media bus format and resolution on output pad.</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><p>Sony IMX274 Image Sensor</p></td>
+<td><ul class="simple">
+<li><p>Sets media bus format and resolution on output pad.</p></li>
+<li><p>Sets sensor control parameters: exposure, gain, test pattern, vertical flip.</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><p>HDR Extract</p></td>
+<td><ul class="simple">
+<li><p>Sets media bus format and resolution on input pad.</p></li>
+<li><p>Sets media bus format and resolution on two output pads.</p></li>
+<li><p>Configure HDR Extract IP and stream data to produce Short Exposure Frame (SEF) and Long Exposre Frames(LEF).</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><p>HDR Merge</p></td>
+<td><ul class="simple">
+<li><p>Sets media bus format and resolution on two input pads.</p></li>
+<li><p>Sets media bus format and resolution on output pad.</p></li>
+<li><p>Configure HDR Merge IP and stream data to produce a single HDR Frame from SEF and LEF.</p></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="display">
+<h2><span class="section-number">5.1.3. </span>Display<a class="headerlink" href="#display" title="Permalink to this heading">¶</a></h2>
+<p>The Display software stack is depicted in the following figure.</p>
+<figure class="align-default" id="id4">
+<img alt="Display Software Stack" src="../_images/display_stack.png" />
+<figcaption>
+<p><span class="caption-text">Display Software Stack</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>At a high-level it consists of the following layers from top to bottom which are further described in the next sections:</p>
+<ul class="simple">
+<li><p>User-space layers</p>
+<ul>
+<li><p>GStreamer: KMS sink plugin</p></li>
+<li><p>libdrm: DRM user-space library</p></li>
+</ul>
+</li>
+<li><p>Kernel-space layers</p>
+<ul>
+<li><p>DRM/KMS subsystem: Xilinx DRM driver</p></li>
+<li><p>DMA engine: Xilinx framebuffer driver</p></li>
+</ul>
+</li>
+</ul>
+<section id="kms-sink-gstreamer-plugin">
+<h3><span class="section-number">5.1.3.1. </span>KMS Sink GStreamer Plugin<a class="headerlink" href="#kms-sink-gstreamer-plugin" title="Permalink to this heading">¶</a></h3>
+<p>The kmssink element interfaces with the DRM/KMS Linux framework and the Xilinx DRM driver
+through the libdrm library and the dri-card device node.</p>
+<p>The kmssink element library uses the libdrm library to configure the cathode ray tube controller
+(CRTC) based on the monitor’s extended display identification data (EDID) information with the
+video resolution of the display. It also configures plane properties such as the alpha value.</p>
+</section>
+<section id="libdrm">
+<h3><span class="section-number">5.1.3.2. </span>Libdrm<a class="headerlink" href="#libdrm" title="Permalink to this heading">¶</a></h3>
+<p>The DRM/KMS framework exposes two device nodes to user space: the /dev/dri/card* device
+node and an emulated /dev/fb* device node for backward compatibility with the legacy fbdev
+Linux framework. The latter is not used in this design. libdrm was created to facilitate the
+interface of user space programs with the DRM subsystem. This library is merely a wrapper that
+provides a function written in C for every ioctl of the DRM API, as well as constants, structures
+and other helper elements. The use of libdrm not only avoids exposing the kernel interface
+directly to user space, but presents the usual advantages of reusing and sharing code between
+programs.</p>
+</section>
+<section id="drm-kms-kernel-subsystem">
+<h3><span class="section-number">5.1.3.3. </span>DRM/KMS Kernel Subsystem<a class="headerlink" href="#drm-kms-kernel-subsystem" title="Permalink to this heading">¶</a></h3>
+<p>Linux kernel and user-space frameworks for display and graphics are intertwined and the
+software stack can be quite complex with many layers and different standards/APIs. On the
+kernel side, the display and graphics portions are split with each having their own APIs. However,
+both are commonly referred to as a single framework: DRM/KMS.</p>
+<p>This split is advantageous, especially for SoCs that often have dedicated hardware blocks for
+display and graphics. The display pipeline driver responsible for interfacing with the display uses
+the kernel mode setting (KMS) API and the GPU responsible for drawing objects into memory
+uses the direct rendering manager (DRM) API. Both APIs are accessed from user-space through a
+single device node.</p>
+<p>A brief overview of the DRM is provided but the focus is on KMS as there is no GPU present in
+the design.</p>
+</section>
+<section id="direct-rendering-manager">
+<h3><span class="section-number">5.1.3.4. </span>Direct Rendering Manager<a class="headerlink" href="#direct-rendering-manager" title="Permalink to this heading">¶</a></h3>
+<p>The Xilinx DRM driver uses the GEM (Graphics Execution Manager) memory manager and
+implements DRM PRIME buffer sharing. PRIME is the cross-device buffer sharing framework in
+DRM. To user-space PRIME buffers are DMABUF-based file descriptors. The DRM GEM/CMA
+helpers use the Continuous Memory Access (CMA) allocator as a means to provide buffer objects
+that are physically contiguous in memory. This is useful for display drivers that are unable to map
+scattered buffers via an I/O memory management unit (IOMMU).</p>
+<p>Frame buffers are abstract memory objects that provide a source of pixels to scan out to a CRTC.
+Applications explicitly request the creation of frame buffers and receive an opaque handle that
+can be passed to the KMS CRTC control, plane configuration, and page flip functions.</p>
+</section>
+<section id="kernel-mode-setting">
+<h3><span class="section-number">5.1.3.5. </span>Kernel Mode Setting<a class="headerlink" href="#kernel-mode-setting" title="Permalink to this heading">¶</a></h3>
+<p>Mode setting is an operation that sets the display mode including video
+resolution and refresh rate. It was traditionally done in user-space by
+the X-server which caused a number of issues due to accessing low-level
+hardware from user-space which, if done wrong, can lead to system
+instabilities. The mode setting API was added to the kernel DRM
+framework, hence the name kernel mode setting.</p>
+<p>The KMS API is responsible for handling the frame buffer and planes, setting the mode, and
+performing page-flips (switching between buffers). The KMS device is modeled as a set of planes,
+CRTCs, encoders, and connectors as shown in the Display Software Stack figure in the Display
+section. The figure also shows how the driver model maps to the physical hardware components
+inside the HDMI Tx display pipeline</p>
+</section>
+<section id="crtc">
+<h3><span class="section-number">5.1.3.6. </span>CRTC<a class="headerlink" href="#crtc" title="Permalink to this heading">¶</a></h3>
+<p>CRTC is an antiquated term that stands for cathode ray tube controller, which today would be
+simply named display controller as CRT monitors have disappeared and many other display types
+are available. The CRTC is an abstraction that is responsible for composing the frame to be
+scanned out to the display and setting the mode of the display.</p>
+<p>In the Xilinx DRM driver, the CRTC is represented by the video mixer. The bottom-most plane is
+the primary plane (or master layer) and configured statically in the device-tree. The primary plane
+always matches the currently configured display resolution set by the CRTC (width and height)
+with X- and Y-offsets set to 0. The primary plane can be overlayed with up to eight overlay
+planes inside the video mixer.</p>
+</section>
+<section id="plane">
+<h3><span class="section-number">5.1.3.7. </span>Plane<a class="headerlink" href="#plane" title="Permalink to this heading">¶</a></h3>
+<p>In this design, the primary plane can be overlayed and/or alpha-blended with up to eight
+additional planes inside the video mixer. The z-order (foreground or background position) of the
+planes is fixed. The global alpha mode can be configured per plane through the driver by means
+of custom KMS properties: an alpha value of 0% (or 0) means the layer is fully transparent
+(invisible); an alpha value of 100% (or 255) means that the layer is fully opaque.</p>
+<p>Each overlay plane’s width, height, X- and Y-offset is run-time programmable relative to the
+primary plane or CRTC which determines the display resolution. The pixel formats of the primary
+plane as well as the eight overlay planes are fixed: one BGR plane (primary) plus four YUY2
+planes (overlay) plus four BGR planes (overlay) from bottom to top.</p>
+<p>The Xilinx DRM driver supports the universal plane feature, therefore the primary plane and
+overlay planes can be configured through the same API. A page-flip is the operation that
+configures a plane with the new buffer index to be selected for the next scan-out. The new
+buffer is prepared while the current buffer is being scanned out and the flip typically happens
+during vertical blanking to avoid image tearing.</p>
+</section>
+<section id="encoder">
+<h3><span class="section-number">5.1.3.8. </span>Encoder<a class="headerlink" href="#encoder" title="Permalink to this heading">¶</a></h3>
+<p>An encoder takes pixel data from a CRTC and converts it to a format suitable for any attached
+connectors. There are many different display protocols defined, such as HDMI and DisplayPort.
+This design uses an HDMI transmitter implemented in the PL which sends the encoded video
+data to the HDMI GT Controller and PHY. The PHY serializes the data using the GTY transceivers
+in the PL before it goes out via the HDMI Tx connector on the board.</p>
+</section>
+<section id="connector">
+<h3><span class="section-number">5.1.3.9. </span>Connector<a class="headerlink" href="#connector" title="Permalink to this heading">¶</a></h3>
+<p>The connector models the physical interface to the display. The
+HDMI protocols use a query mechanism to receive data
+about the monitor resolution, and refresh rate by reading the extended
+display identification data (EDID) (see VESA Standard ) stored inside
+the monitor. This data can then be used to correctly set the CRTC mode.
+HDMI also supports hot-plug events to detect if a cable has been
+connected or disconnected as well as handling display power management
+signaling (DPMS) power modes.</p>
+<ul class="simple">
+<li><p>User-space layers</p>
+<ul>
+<li><p>GStreamer: alsasrc and alsasink plugins</p></li>
+<li><p>Alsa-lib: ALSA user-space library</p></li>
+</ul>
+</li>
+<li><p>Kernel-space layers</p>
+<ul>
+<li><p>ALSA: Xilinx ALSA ASoC driver</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="qdma-drivers">
+<h2><span class="section-number">5.1.4. </span>QDMA Drivers<a class="headerlink" href="#qdma-drivers" title="Permalink to this heading">¶</a></h2>
+<p>QDMA driver on the host machine is used to identify VCK190 device connected to the host machine via PCIe interface and perform data transfer through DMA.</p>
+<p>Please refer to below link for more details on QDMA drivers:
+<a class="reference external" href="https://github.com/Xilinx/dma_ip_drivers/tree/master/QDMA/linux-kernel">https://github.com/Xilinx/dma_ip_drivers/tree/master/QDMA/linux-kernel</a>.</p>
+<section id="pcie-end-point-driver">
+<h3><span class="section-number">5.1.4.1. </span>PCIe End Point Driver<a class="headerlink" href="#pcie-end-point-driver" title="Permalink to this heading">¶</a></h3>
+<p>Endpoint driver is used to communicate with the Host using dedicated BAR. Endpoint driver makes use of DMA framework available in linux kernel by which it exports DMA buffers as file descriptors to userspace and import a DMA buffer from userspace using a file descriptor previously exported for a different or the same device.</p>
+<p>For initiating DMA transfers through pcie, Endpoint driver registers two interrupts i.e., DMA read and DMA write interrupts and one more interrupt to acknowledgement host that DMA transfer is complete. The BAR registers described below are used as control information between host and endpoint.</p>
+<p>Below table provide the purpose of each PCIe User Space Registers in both endpoint driver and host application.</p>
+<figure class="align-default" id="id5">
+<img alt="PCIe_USER SPACE REGISTERS" src="../_images/pcie_user_space_reg.png" />
+<figcaption>
+<p><span class="caption-text">PCIe User Space Registers</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+<section id="gstreamer">
+<h2><span class="section-number">5.1.5. </span>GStreamer<a class="headerlink" href="#gstreamer" title="Permalink to this heading">¶</a></h2>
+<p>GStreamer is a cross-platform open source multimedia framework that provides infrastructure to
+integrate multiple multimedia components and create pipelines/graphs. GStreamer graphs are
+made of two or more plugin elements which are delivered as shared libraries. The following is a
+list of commonly performed tasks in the GStreamer framework:</p>
+<ul class="simple">
+<li><p>Selection of a source GStreamer plugin</p></li>
+<li><p>Selection of a processing VVAS plugin</p></li>
+<li><p>Selection of a sink GStreamer plugin</p></li>
+<li><p>Creation of a GStreamer graph based on above plugins plus capabilities</p></li>
+<li><p>Configuration of properties of above GStreamer plugins</p></li>
+<li><p>Control of a GStreamer pipeline/graph</p></li>
+</ul>
+<section id="plugins">
+<h3><span class="section-number">5.1.5.1. </span>Plugins<a class="headerlink" href="#plugins" title="Permalink to this heading">¶</a></h3>
+<p>The following GStreamer plugin categories are used in this design:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Source</dt><dd><ul>
+<li><p>mediasrcbin: V4l2 sources such as USB webcam, MIPI single-sensor, MIPI quad-sensor</p></li>
+<li><p>multisrc/filesrc: video file source for raw or encoded image/video files</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Sink</dt><dd><ul>
+<li><p>kmssink: KMS display sink for HDMI Tx</p></li>
+<li><p>filesink: video file sink for raw or encoded image/video files</p></li>
+<li><p>appsink: sink that makes video buffers available to an application such as the display inside jupyter notebooks</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Encode/decode</dt><dd><ul>
+<li><p>jpegenc/dec: jpg image file encode/decode</p></li>
+<li><p>vp9enc/dec: vp9 video file encode/decode</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Processing/acceleration</dt><dd><ul>
+<li><p>VVAS Infrastructure Plug-ins or VVAS Custom Plug-ins</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Other</dt><dd><ul>
+<li><p>capsfilter: filters capabilities</p></li>
+<li><p>tee: tee element to create a fork in the data flow</p></li>
+<li><p>queue: creates separate threads between pipeline elements and adds additional buffering</p></li>
+<li><p>perf: measure frames-per-seconds (fps) at an arbitrary point in the pipeline</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="capabilities">
+<h3><span class="section-number">5.1.5.2. </span>Capabilities<a class="headerlink" href="#capabilities" title="Permalink to this heading">¶</a></h3>
+<p>The pads are the element’s interface to the outside world. Data streams from one element’s
+source pad to another element’s sink pad. The specific type of media that the element can handle
+is exposed by the pad’s capabilities. The following capabilities are used between the video-source
+plugin and its peer plugin (either video-sink or video-processing). These capabilities (also called
+capsfilter) are specified while constructing a GStreamer graph, for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;video/x-raw, width=&lt;width of videosrc&gt;, height=&lt;height of videosrc&gt;,format=YUY2, ramerate=&lt;fps/1&gt;&quot;</span>
+</pre></div>
+</div>
+<p>If multisrc is used as video-source plugin, the videoparse element is used instead of a capsfilter to
+parse the raw video file and transform it to frames:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;video/x-raw, width=&lt;width of videosrc&gt;, height=&lt;height of videosrc&gt;,format=YUY2, framerate=&lt;fps/1&gt;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="pipeline-control">
+<h3><span class="section-number">5.1.5.3. </span>Pipeline Control<a class="headerlink" href="#pipeline-control" title="Permalink to this heading">¶</a></h3>
+<p>The GStreamer framework is used to control the GStreamer graph. It provides the following
+functionality:</p>
+<ul class="simple">
+<li><p>Start/stop video stream inside a graph</p></li>
+<li><p>Get/set controls</p></li>
+<li><p>Buffer operations</p></li>
+<li><p>Get frames-per-second information</p></li>
+</ul>
+<p>There are four states defined in the GStreamer graph: “NULL”, “READY”, “PAUSED”, and
+“PLAYING”. The “PLAYING” state of a GStreamer graph is used to start the pipeline and the
+“NULL” state is to stop the pipeline.</p>
+</section>
+<section id="allocators">
+<h3><span class="section-number">5.1.5.4. </span>Allocators<a class="headerlink" href="#allocators" title="Permalink to this heading">¶</a></h3>
+<p>GStreamer abstracts buffer allocation and pooling. Custom allocators and buffer pools can be
+implemented to accommodate custom use-cases and constraints. The video source controls
+buffer allocation, but the sink can propose parameters in the negotiation phase.</p>
+<p>The DMABUF framework is used to import and export buffers in a 0-copy fashion between
+pipeline elements, which is required for high-performance pipelines, as shown in the following
+figure. The <code class="docutils literal notranslate"><span class="pre">v4l2src</span></code>, <code class="docutils literal notranslate"><span class="pre">kmssink</span></code>, and <code class="docutils literal notranslate"><span class="pre">vvas</span></code> elements are all capable of
+allocating and exporting as well as importing DMABUFs to/from their peer
+elements.</p>
+<figure class="align-default" id="id6">
+<img alt="DMABUF Sharing Mechanism" src="../_images/dmabuf.png" />
+<figcaption>
+<p><span class="caption-text">DMABUF Sharing Mechanism</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Note that DMABUFs are not necessarily physically contiguous depending on the underlying
+kernel device driver, that is, the UVC v4l2 driver does not allocate CMA memory which results in
+a data copy if its peer element can only handle contiguous memory.</p>
+</section>
+</section>
+<section id="host-machine-software-stack">
+<h2><span class="section-number">5.1.6. </span>Host machine software stack<a class="headerlink" href="#host-machine-software-stack" title="Permalink to this heading">¶</a></h2>
+<figure class="align-default" id="id7">
+<img alt="Host machine software stack" src="../_images/software_stack_host.png" />
+<figcaption>
+<p><span class="caption-text">Host machine software stack</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>The Host machine software stack is horizontally divided into the following layers</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Application layer (user-space)</dt><dd><ul>
+<li><p>A Qt based command-line application to display media content on monitor received from endpoint.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Middleware layer (user-space)</dt><dd><ul>
+<li><p>Pcie host lib to access PCIe BAR register and perform dma transfers.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Operating system (OS) layer (kernel-space)</dt><dd><ul>
+<li><p>Provides a stable, well-defined API to user-space.</p></li>
+<li><p>Includes device drivers and kernel frameworks (subsystems).</p></li>
+<li><p>Access to hardware IPs.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<section id="host-machine-userspace-software-components">
+<h3><span class="section-number">5.1.6.1. </span>Host machine userspace software components<a class="headerlink" href="#host-machine-userspace-software-components" title="Permalink to this heading">¶</a></h3>
+<p><strong>Qt application</strong></p>
+<ul class="simple">
+<li><p>command-line application to communicate control information between host abd endpoint via pcie-host lib.</p></li>
+<li><p>displays media content on monitor received from endpoint.</p></li>
+</ul>
+<p><strong>PCIe Host lib</strong></p>
+<p>Library functions to perform dma tranfers using dma xfer utils and access PCIe BAR register to communicate control information between host and         endpoint</p>
+</section>
+</section>
+<section id="communication-between-x86-machine-host-and-target">
+<h2><span class="section-number">5.1.7. </span>Communication between x86 machine (Host) and  target<a class="headerlink" href="#communication-between-x86-machine-host-and-target" title="Permalink to this heading">¶</a></h2>
+<p>Following diagram captures, all the components involved in achieving different usecases(both from Host and Device perspective)</p>
+<figure class="align-default" id="id8">
+<img alt="Linux SW components" src="../_images/software_components.png" />
+<figcaption>
+<p><span class="caption-text">Linux Software Components</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Following G-streamer plugins(Python bindings) are supported and provided as part of package.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Appsrc plugin:</dt><dd><p>Appsrc plugin interacts with PCIe EP driver and gets the media content from the Host over PCIe interface.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Appsinc Plugin:</dt><dd><p>Appsync plugin interacts with PCIe EP driver and sends the media content to the Host over PCIe interface.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>vvas_xfilter plugin :</dt><dd><p>A generic infrastructure plug-in: 1 input, 1 output, supporting pass-through, in-place, and transform processing.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>pcie_lib:</dt><dd><p>This library provides abstract APIs for the gstreamer python binding jupyter notebook applicationthat interact with PCIe user space configuration.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="details-on-data-and-control-information-flow">
+<h2><span class="section-number">5.1.8. </span>Details on Data and control information Flow<a class="headerlink" href="#details-on-data-and-control-information-flow" title="Permalink to this heading">¶</a></h2>
+<section id="at-x86-host-machine">
+<h3><span class="section-number">5.1.8.1. </span>At x86 Host machine<a class="headerlink" href="#at-x86-host-machine" title="Permalink to this heading">¶</a></h3>
+<p>Data is transferred between the host and the target using the QDMA. QDMA device drivers are installed on the host,
+are used to configure the QDMA IP on the endpoint and to initiate data transfer from the host. The host reads the
+media file from the disk, sends control information to the endpoint, also sends the media file to the endpoint using DMA.
+After receiving filtered output back from the endpoint, the data is displayed on the host monitor. At the device side,
+the OpenCL-based application is used to receive the data, filter it, and send the data back to the host.</p>
+<p>A dedicated BAR is used to send control information between Host and the Device and vice-versa.</p>
+</section>
+<section id="at-endpoint">
+<h3><span class="section-number">5.1.8.2. </span>At Endpoint<a class="headerlink" href="#at-endpoint" title="Permalink to this heading">¶</a></h3>
+<p>In the device, there is a Gstreamer pyton binding jupyter notebook  which loads the xclbin file using XRT and gets
+control information with the help of pcie abstract library and EP pcie driver. Depending on the control information,
+setups corresponding usecase, using DMA-BUF mechanism does ZERO copy between the GST plugins and transfers data back
+to the Host. . To achieve better performance instead of buffer copy, endpoint drivers uses DMA-BUF framework available
+in the linux kernel. With the help of DMA-BUF framework zero copy is achieved by just transferring buffer handles between different SW components.</p>
+</section>
+</section>
+<section id="supported-use-cases">
+<h2><span class="section-number">5.1.9. </span>Supported Use cases<a class="headerlink" href="#supported-use-cases" title="Permalink to this heading">¶</a></h2>
+<p>Following use cases are supported in this release.</p>
+<ol class="arabic simple">
+<li><p>MIPI –&gt; 2D Image Processing/XVDPU/BYPASS –&gt; HDMI</p></li>
+<li><p>MIPI –&gt; 2D Image Processing/XVDPU/BYPASS –&gt; PCIE/QDMA EP –&gt; PCIE x86 Host(RC) –&gt; Display on Host</p></li>
+<li><p>Raw Video File from Host –&gt; PCIE x86 Host(RC) –&gt; PCIE/QDMA EP –&gt; 2D Image Processing/Bypass –&gt; PCIE/QDMA EP –&gt; PCIE x86 Host(RC) –&gt; Display on Host</p></li>
+<li><p>Raw Video File from Host –&gt; PCIE x86 Host(RC) –&gt; PCIE/XVDPU/QDMA EP –&gt; 2D Image Processing/Bypass –&gt; HDMI</p></li>
+</ol>
+<section id="usecase-1">
+<h3><span class="section-number">5.1.9.1. </span>Usecase-1<a class="headerlink" href="#usecase-1" title="Permalink to this heading">¶</a></h3>
+<p><strong>(MIPI –&gt; 2D Image Processing/XVDPU/BYPASS –&gt; HDMI)</strong></p>
+<p>Data is captured using MIPI camera, captured frame is fed through ISP, Scalar blocks. Captured frame is processed through 2d filter( filter IP created using the Vitis™ flow in the PL) or XVDPU and filtered content is displayed on the Monitor which is connected to the HDMI port.</p>
+<p>DMA-BUF mechanism which is available in Linux is used to achieve Zero-copy between G-streamer plugins and to achieve better performance.</p>
+<p>Device application provides user interface to configure  Plan-id and Sync parameters</p>
+<figure class="align-default">
+<img alt="usecase1" src="../_images/software_usecase1.png" />
+</figure>
+</section>
+<section id="usecase-2">
+<h3><span class="section-number">5.1.9.2. </span>Usecase-2<a class="headerlink" href="#usecase-2" title="Permalink to this heading">¶</a></h3>
+<p><strong>(MIPI –&gt; 2D Image Processing/XVDPU/BYPASS –&gt; PCIE/QDMA EP –&gt; PCIE x86 Host(RC) –&gt; Display on Host)</strong></p>
+<p>Data is captured using MIPI camera, processed using ISP, Scalar blocks. Captured frame is processed through 2d filter( filter IP created using the Vitis™ flow in the PL) or XVDPU and filtered content is sent to the Host using appsync G-streamer plugin. On the Host data is displayed on the monitor connected to it.</p>
+<p>DMA-BUF mechanism which is available in Linux is used to achieve Zero-copy between G-streamer plugins and to achieve better performance.</p>
+<p>Host application provides user interface to configure following parameters Height, Width,  Input-format, Kernel-preset, Kernel-mode, Kernel-name, Framerate. Host send all these parameters to the device using the control interface and actual media data is transferred using DMA through PCIe.</p>
+<p>Device application provides user interface to configure  Plan-id and Sync parameters</p>
+<figure class="align-default">
+<img alt="usecase2" src="../_images/software_usecase2.png" />
+</figure>
+</section>
+<section id="usecase-3">
+<h3><span class="section-number">5.1.9.3. </span>Usecase-3<a class="headerlink" href="#usecase-3" title="Permalink to this heading">¶</a></h3>
+<p><strong>(Raw Video File from Host –&gt; PCIE x86 Host(RC) –&gt; PCIE/QDMA EP –&gt; 2D Image Processing/Bypass –&gt; PCIE/QDMA EP –&gt; PCIE x86 Host(RC) –&gt; Display on Host)</strong></p>
+<p>Host application reads data from file, using DMA data is transferred to device. On the device Appsrc G-streamer plugin is used to receive the data which is then fed through 2d filter( filter IP created using the Vitis™ flow in the PL)and filtered content is sent back to the Host using Appsync G-streamer plugin. On the Host data is displayed on the monitor connected to it.</p>
+<p>DMA-BUF mechanism which is available in Linux is used to achieve Zero-copy between G-streamer plugins and to achieve better performance.</p>
+<p>Host application provides user interface to configure following parameters Height, Width,  Input-format, Kernel-preset, Kernel-mode, Kernel-name, Framerate. Host send all these parameters to the device using the control interface and actual media data is transferred using DMA through PCIe.</p>
+<p>Device application provides user interface to configure  Plan-id and Sync parameters</p>
+<figure class="align-default">
+<img alt="usecase3" src="../_images/software_usecase3.png" />
+</figure>
+</section>
+<section id="usecase-4">
+<h3><span class="section-number">5.1.9.4. </span>Usecase-4<a class="headerlink" href="#usecase-4" title="Permalink to this heading">¶</a></h3>
+<p><strong>(Raw Video File from Host –&gt; PCIE x86 Host(RC) –&gt; PCIE/QDMA EP –&gt; 2D Image Processing/Bypass –&gt; HDMI)</strong></p>
+<p>Host application reads data from file, using DMA data is transferred to device. On the device Appsrc G-streamer plugin is used to receive the data which is then fed through 2d filter( filter IP created using the Vitis™ flow in the PL) or XVDPU and filtered content is displayed on the Monitor which is connected to the HDMI port by KMSSINK gstreamer plugin.</p>
+<p>DMA-BUF mechanism which is available in Linux is used to achieve Zero-copy between G-streamer plugins and to achieve better performance.</p>
+<p>Host application provides user interface to configure following parameters Height, Width,  Input-format, Kernel-preset, Kernel-mode, Kernel-name, Framerate. Host send all these parameters to the device using the control interface and actual media data is transferred using DMA through PCIe.</p>
+<p>Device application provides user interface to configure  Plan-id and Sync parameters.</p>
+<figure class="align-default">
+<img alt="usecase3" src="../_images/software_usecase4.png" />
+</figure>
+<hr class="docutils" />
+<p>Licensed under the Apache License, Version 2.0 (the “License”); you may not use this file
+except in compliance with the License.</p>
+<p>You may obtain a copy of the License at
+<a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+<p>Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific language governing permissions
+and limitations under the License.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+                  <style>
+                        .footer {
+                        position: fixed;
+                        left: 0;
+                        bottom: 0;
+                        width: 100%;
+                        }
+                  </style>
+				  
+				  <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../arch.html" class="btn btn-neutral float-left" title="5. Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="arch-hw.html" class="btn btn-neutral float-right" title="5.2. Hardware Architecture of the Platform" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2023, Advanced Micro Devices, Inc.
+      <span class="lastupdated">Last updated on May 19, 2023.
+      </span></p>
+  </div>
+
+
+
+										<div class="aem-Grid aem-Grid--16">
+											<div class="aem-GridColumn aem-GridColumn--xxxlarge--none aem-GridColumn--xsmall--16 aem-GridColumn--offset--xsmall--0 aem-GridColumn--xlarge--none aem-GridColumn--xxlarge--none aem-GridColumn--default--none aem-GridColumn--offset--large--1 aem-GridColumn--xlarge--12 aem-GridColumn--offset--default--0 aem-GridColumn--xxlarge--10 aem-GridColumn--offset--xlarge--2 aem-GridColumn--offset--xxlarge--3 aem-GridColumn--offset--xxxlarge--4 aem-GridColumn--xsmall--none aem-GridColumn--large--none aem-GridColumn aem-GridColumn--large--14 aem-GridColumn--xxxlarge--8 aem-GridColumn--default--16">
+												<div class="container-fluid sub-footer">
+
+													                    <div class="row">
+                        <div class="col-xs-24">
+                          <p><a target="_blank" href="https://www.amd.com/en/corporate/copyright">Terms and Conditions</a> | <a target="_blank" href="https://www.amd.com/en/corporate/privacy">Privacy</a> | <a target="_blank" href="https://www.amd.com/en/corporate/cookies">Cookie Policy</a> | <a target="_blank" href="https://www.amd.com/en/corporate/trademarks">Trademarks</a> | <a target="_blank" href="https://www.amd.com/system/files/documents/statement-human-trafficking-forced-labor.pdf">Statement on Forced Labor</a> | <a target="_blank" href="https://www.amd.com/en/corporate/competition">Fair and Open Competition</a> | <a target="_blank" href="https://www.amd.com/system/files/documents/amd-uk-tax-strategy.pdf">UK Tax Strategy</a> | <a target="_blank" href="https://docs.xilinx.com/v/u/9x6YvZKuWyhJId7y7RQQKA">Inclusive Terminology</a> | <a href="#cookiessettings" class="ot-sdk-show-settings">Cookies Settings</a></p>
+                        </div>
+                    </div>
+												</div>
+											</div>
+										</div>
+										
+</br>
+
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

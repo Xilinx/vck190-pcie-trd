@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+<!-- OneTrust Cookies Consent Notice start for xilinx.github.io -->
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script="03af8d57-0a04-47a6-8f10-322fa00d8fc7" ></script>
+<script type="text/javascript">
+function OptanonWrapper() { }
+</script>
+<!-- OneTrust Cookies Consent Notice end for xilinx.github.io -->
+<!-- Google Tag Manager -->
+<script type="text/plain" class="optanon-category-C0002">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5RHQV7');</script>
+<!-- End Google Tag Manager -->
+  <title>2. Introduction &mdash; Versal PCIe TRD 2022.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="3. Run the Prebuilt Image" href="run.html" />
+    <link rel="prev" title="1. Revision History" href="revision.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-5RHQV7" height="0" width="0" style="display:none;visibility:hidden" class="optanon-category-C0002"></iframe></noscript>
+<!-- End Google Tag Manager --> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+            <a href="index.html" class="icon icon-home"> Versal PCIe TRD
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="revision.html">1. Revision History</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2. Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#features">2.1. Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#platform">2.2. Platform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#software-stack">2.3. Software Stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#high-dynamic-range-video">2.4. High Dynamic Range Video</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#design-files">2.5. Design Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#licenses">2.6. Licenses</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="run.html">3. Run the Prebuilt Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build.html">4. Build an Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arch.html">5. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="known-issues.html">6. Known Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">7. Support</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: black" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Versal PCIe TRD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><span class="section-number">2. </span>Introduction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/intro.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="introduction">
+<h1><span class="section-number">2. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h1>
+<p>The Versal PCIe TRD consists of a platform, accelerators and Jupyter
+notebooks to demonstrate various aspects of the design. The platform is a Vivado
+design with a pre-instantiated set of I/O interfaces and a corresponding
+PetaLinux BSP and image that includes the required kernel drivers and user-space
+libraries to exercise those interfaces. Accelerators are mapped to FPGA logic
+resources and/or AI Engine cores and stitched into the platform using the Vitis
+toolchain. The reference designs are implemented for VCK190 evaluation board.</p>
+<section id="features">
+<h2><span class="section-number">2.1. </span>Features<a class="headerlink" href="#features" title="Permalink to this heading">¶</a></h2>
+<p>VCK190 PCIe TRD 2022.2 demonstrates following functionalities :</p>
+<ul class="simple">
+<li><p>Video being captured from MIPI image sensor, processed with an accelerator and displayed on a HDMI monitor connected to VCK190 evaluation board.</p></li>
+<li><p>Video being captured from MIPI image sensor, processed (optionally) with an accelerator, sent to a x86 host machine (root complex) via PCIe and displayed on a monitor connected to the host machine.</p></li>
+<li><p>Video frames being transferred from a file on the host machine to the VCK190 evaluation board (endpoint) through the PCIe QDMA bridge interface, processed (optionally) with an accelerator, sent back to host and displayed on a monitor connected to the host machine. .</p></li>
+<li><p>Video frames being transferred from a file on the host machine to the VCK190 evaluation board (endpoint) through the PCIe QDMA bridge interface, processed (optionally) with an accelerator and displayed on HDMI monitor connected to VCK190 board.</p></li>
+</ul>
+</section>
+<section id="platform">
+<span id="id1"></span><h2><span class="section-number">2.2. </span>Platform<a class="headerlink" href="#platform" title="Permalink to this heading">¶</a></h2>
+<p>The following is a list of key I/O interfaces of the platform:</p>
+<ul class="simple">
+<li><p>Sources:</p>
+<ul>
+<li><p>x86 host machine through the PCIe QDMA bridge interface</p></li>
+<li><p>MIPI CSI-2 image sensor capture pipeline via FMC daughter card</p></li>
+<li><p>File source</p></li>
+</ul>
+</li>
+<li><p>Processing:</p>
+<ul>
+<li><p>2D Filter (PL)</p></li>
+<li><p>XVDPU (PL + AIE)</p></li>
+</ul>
+</li>
+<li><p>Sinks:</p>
+<ul>
+<li><p>x86 host machine via PCIe</p></li>
+<li><p>HDMI Tx + video mixer display pipeline</p></li>
+<li><p>Application sink into jupyter notebook display</p></li>
+</ul>
+</li>
+</ul>
+<p>Audio replay can be done using a file as an audio source.</p>
+<a class="reference internal image-reference" href="_images/system-bd.png"><img alt="System Design Block Diagram" src="_images/system-bd.png" style="width: 1200px;" /></a>
+</section>
+<section id="software-stack">
+<h2><span class="section-number">2.3. </span>Software Stack<a class="headerlink" href="#software-stack" title="Permalink to this heading">¶</a></h2>
+<p>The main software frameworks used in this reference design are:</p>
+<ul class="simple">
+<li><p>Jupyter notebooks for top-level application control and visualization</p></li>
+<li><p>GStreamer multimedia framework and plugins for video pipeline creation</p></li>
+<li><p>V4L2 kernel subsystem and drivers for video capture devices</p></li>
+<li><p>Xilinx run-time (XRT) and Xilinx OpenCL for acceleration kernels</p></li>
+<li><p>DRM/KMS kernel subsystem and drivers for display devices</p></li>
+<li><p>ALSA kernel subsystem and drivers for audio devices</p></li>
+<li><p>PCIe end-point and host machine QDMA drivers</p></li>
+</ul>
+<p>Working of above frameworks are detailed in Chapter 5.</p>
+<a class="reference internal image-reference" href="_images/sw-stack.png"><img alt="Software Stack Overview" src="_images/sw-stack.png" style="width: 700px;" /></a>
+</section>
+<section id="high-dynamic-range-video">
+<h2><span class="section-number">2.4. </span>High Dynamic Range Video<a class="headerlink" href="#high-dynamic-range-video" title="Permalink to this heading">¶</a></h2>
+<p>This TRD supports high dynamic range (HDR) video with capture and display pipelines,
+following is a brief introduction.</p>
+<p><strong>Multi-exposure Digital Overlap High Dynamic Range (DOL-HDR) capture</strong></p>
+<p>High dynamic range image is a technique obtained by combining several different
+exposures frames of the same subject matter. IMX274 camera sensor supports
+capturing objects at two different exposure, HDR extract IP segregates the
+sensor data (DOL data) into short and long exposure frames. HDR merge will
+generate the HDR frame form the data obtained. The HDR frame results in an image
+with a greater dynamic range than what is possible by taking one single exposure.
+HDR is useful for recording many real-world scenes containing very bright,
+direct sunlight to extreme shade.</p>
+<p><strong>Note:</strong> 4k HDR video has a max framerate of 30fps, limited by IMX274 sensor.</p>
+</section>
+<section id="design-files">
+<h2><span class="section-number">2.5. </span>Design Files<a class="headerlink" href="#design-files" title="Permalink to this heading">¶</a></h2>
+<p>The design source files are available at <a class="reference external" href="https://github.com/Xilinx/vck190-pcie-trd.git">https://github.com/Xilinx/vck190-pcie-trd.git</a>
+It has the following contents:</p>
+<ul class="simple">
+<li><p>Petalinux Board Support Package (BSP)</p></li>
+<li><p>Vivado hardware platform project</p></li>
+<li><p>Vitis accelerator overlay project</p></li>
+<li><p>PCIe host package</p></li>
+<li><p>HTML Documentation sources</p></li>
+<li><p>README file</p></li>
+</ul>
+<p>The design file hierarchy is shown below:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vck190-pcie-trd
+├──<span class="w"> </span>docs
+├──<span class="w"> </span>overlays
+│<span class="w">   </span>├──<span class="w"> </span>filter2d
+│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>apps
+│<span class="w">   </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>filter2d-notebooks
+│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>kernels
+│<span class="w">   </span>│<span class="w">       </span>├──<span class="w"> </span>filter2d_combined
+│<span class="w">   </span>│<span class="w">       </span>└──<span class="w"> </span>filter2d_pl
+│<span class="w">   </span>├──<span class="w"> </span>Vitis_Libraries
+│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>vision
+│<span class="w">   </span>└──<span class="w"> </span>xvdpu
+│<span class="w">       </span>├──<span class="w"> </span>apps
+│<span class="w">       </span>│<span class="w">   </span>└──<span class="w"> </span>smart-mipi-app
+│<span class="w">       </span>└──<span class="w"> </span>kernels
+│<span class="w">           </span>├──<span class="w"> </span>vitis_prj
+│<span class="w">           </span>└──<span class="w"> </span>xvdpu_ip
+├──<span class="w"> </span>pcie_host_package
+│<span class="w">   </span>└──<span class="w"> </span>qdma
+├──<span class="w"> </span>petalinux
+│<span class="w">   </span>└──<span class="w"> </span>xilinx-vck190-pcie-trd
+├──<span class="w"> </span>platforms
+│<span class="w">   </span>├──<span class="w"> </span>scripts
+│<span class="w">   </span>└──<span class="w"> </span>vivado
+│<span class="w">       </span>├──<span class="w"> </span>ip
+│<span class="w">       </span>└──<span class="w"> </span>vck190_mipiRxSingle_hdmiTx
+└──<span class="w"> </span>README.md
+</pre></div>
+</div>
+<p>In the following tutorials, it is assumed that the design source files are cloned
+into a directory referred to as <code class="docutils literal notranslate"><span class="pre">$working_dir</span></code>, e.g.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">working_dir</span><span class="o">=</span>/path/to/cloned/repo/vck190-pcie-trd
+</pre></div>
+</div>
+</section>
+<section id="licenses">
+<h2><span class="section-number">2.6. </span>Licenses<a class="headerlink" href="#licenses" title="Permalink to this heading">¶</a></h2>
+<p>The design includes files licensed by Xilinx, AMD, and third parties under the terms
+of the GNU General Public License, GNU Lesser General Public License,
+BSD License, MIT License, and other licenses. The file
+<a class="reference external" href="https://www.xilinx.com/bin/public/openDownload?filename=vck190_pcie_trd_third_party_licenses_and_source_2022_2.tar.gz#">vck190_pcie_trd_third_party_licenses_and_source_2022_2.tar.gz</a>
+contains the complete set of design source files and licenses. You are solely
+responsible for checking any files you use for notices and licenses and for
+complying with any terms applicable to your use of the design and any third
+party files supplied with the design.</p>
+<hr class="docutils" />
+<p>Licensed under the Apache License, Version 2.0 (the “License”); you may not use this file
+except in compliance with the License.</p>
+<p>You may obtain a copy of the License at
+<a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+<p>Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific language governing permissions
+and limitations under the License.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+                  <style>
+                        .footer {
+                        position: fixed;
+                        left: 0;
+                        bottom: 0;
+                        width: 100%;
+                        }
+                  </style>
+				  
+				  <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="revision.html" class="btn btn-neutral float-left" title="1. Revision History" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="run.html" class="btn btn-neutral float-right" title="3. Run the Prebuilt Image" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2023, Advanced Micro Devices, Inc.
+      <span class="lastupdated">Last updated on May 19, 2023.
+      </span></p>
+  </div>
+
+
+
+										<div class="aem-Grid aem-Grid--16">
+											<div class="aem-GridColumn aem-GridColumn--xxxlarge--none aem-GridColumn--xsmall--16 aem-GridColumn--offset--xsmall--0 aem-GridColumn--xlarge--none aem-GridColumn--xxlarge--none aem-GridColumn--default--none aem-GridColumn--offset--large--1 aem-GridColumn--xlarge--12 aem-GridColumn--offset--default--0 aem-GridColumn--xxlarge--10 aem-GridColumn--offset--xlarge--2 aem-GridColumn--offset--xxlarge--3 aem-GridColumn--offset--xxxlarge--4 aem-GridColumn--xsmall--none aem-GridColumn--large--none aem-GridColumn aem-GridColumn--large--14 aem-GridColumn--xxxlarge--8 aem-GridColumn--default--16">
+												<div class="container-fluid sub-footer">
+
+													                    <div class="row">
+                        <div class="col-xs-24">
+                          <p><a target="_blank" href="https://www.amd.com/en/corporate/copyright">Terms and Conditions</a> | <a target="_blank" href="https://www.amd.com/en/corporate/privacy">Privacy</a> | <a target="_blank" href="https://www.amd.com/en/corporate/cookies">Cookie Policy</a> | <a target="_blank" href="https://www.amd.com/en/corporate/trademarks">Trademarks</a> | <a target="_blank" href="https://www.amd.com/system/files/documents/statement-human-trafficking-forced-labor.pdf">Statement on Forced Labor</a> | <a target="_blank" href="https://www.amd.com/en/corporate/competition">Fair and Open Competition</a> | <a target="_blank" href="https://www.amd.com/system/files/documents/amd-uk-tax-strategy.pdf">UK Tax Strategy</a> | <a target="_blank" href="https://docs.xilinx.com/v/u/9x6YvZKuWyhJId7y7RQQKA">Inclusive Terminology</a> | <a href="#cookiessettings" class="ot-sdk-show-settings">Cookies Settings</a></p>
+                        </div>
+                    </div>
+												</div>
+											</div>
+										</div>
+										
+</br>
+
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

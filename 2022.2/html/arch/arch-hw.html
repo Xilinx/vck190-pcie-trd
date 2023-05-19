@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+<!-- OneTrust Cookies Consent Notice start for xilinx.github.io -->
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script="03af8d57-0a04-47a6-8f10-322fa00d8fc7" ></script>
+<script type="text/javascript">
+function OptanonWrapper() { }
+</script>
+<!-- OneTrust Cookies Consent Notice end for xilinx.github.io -->
+<!-- Google Tag Manager -->
+<script type="text/plain" class="optanon-category-C0002">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5RHQV7');</script>
+<!-- End Google Tag Manager -->
+  <title>5.2. Hardware Architecture of the Platform &mdash; Versal PCIe TRD 2022.2 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="5.3. Accelerator - 2D Filter" href="arch-filter2d.html" />
+    <link rel="prev" title="5.1. Software Architecture of the Platform" href="arch-sw.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-5RHQV7" height="0" width="0" style="display:none;visibility:hidden" class="optanon-category-C0002"></iframe></noscript>
+<!-- End Google Tag Manager --> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+            <a href="../index.html" class="icon icon-home"> Versal PCIe TRD
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../revision.html">1. Revision History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">2. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../run.html">3. Run the Prebuilt Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">4. Build an Image</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../arch.html">5. Architecture</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="arch-sw.html">5.1. Software Architecture of the Platform</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">5.2. Hardware Architecture of the Platform</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#capture-pipeline">5.2.1. Capture Pipeline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#single-sensor-mipi-capture">5.2.1.1. Single Sensor MIPI Capture</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#display-pipeline">5.2.2. Display Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cpm-pcie-capture-display">5.2.3. CPM-PCIe Capture &amp; Display</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pcie-user-space-register">5.2.4. PCIe User Space Register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clocks-resets-and-interrupts">5.2.5. Clocks, Resets and Interrupts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="arch-filter2d.html">5.3. Accelerator - 2D Filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arch-xvdpu.html">5.4. Accelerator - XVDPU</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../known-issues.html">6. Known Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../support.html">7. Support</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: black" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Versal PCIe TRD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../arch.html"><span class="section-number">5. </span>Architecture</a> &raquo;</li>
+      <li><span class="section-number">5.2. </span>Hardware Architecture of the Platform</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/arch/arch-hw.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="hardware-architecture-of-the-platform">
+<h1><span class="section-number">5.2. </span>Hardware Architecture of the Platform<a class="headerlink" href="#hardware-architecture-of-the-platform" title="Permalink to this heading">¶</a></h1>
+<p>This chapter describes the targeted reference design (TRD) hardware architecture.
+The following figure shows a block diagram of the design components inside the
+Versal ACAP on the VCK190 board. See VCK190 Evaluation Board User Guide (<a class="reference external" href="https://www.xilinx.com/support/documentation/boards_and_kits/vck190/ug1366-vck190-eval-bd.pdf">UG1366</a>)
+for more information.</p>
+<a class="reference internal image-reference" href="../_images/hw_blockdiagram.png"><img alt="Hardware Block Diagram" src="../_images/hw_blockdiagram.png" style="width: 1000px;" /></a>
+<p>At a high level, the design comprises three pipelines:</p>
+<p>Capture/input pipeline:</p>
+<ul class="simple">
+<li><p>USB capture pipeline (PS)</p></li>
+<li><p>MIPI CSI-2 Rx capture pipeline (FMC + PL)</p></li>
+<li><p>Video Input (file read) from x86 host via PCIe</p></li>
+</ul>
+<p>Processing Pipeline:</p>
+<ul class="simple">
+<li><p>Video processing accelerator funtions</p></li>
+</ul>
+<p>Display/Output Pipeline:</p>
+<ul class="simple">
+<li><p>HDMI TX display pipeline</p></li>
+<li><p>Video Output via PCIe to host (Host)</p></li>
+</ul>
+<p>The block diagram comprises of two parts: platform and accelerators.</p>
+<p><strong>Platform:</strong></p>
+<p>The platform consists of I/O interfaces and their data motion network.
+This is the fixed part of the design. The platform consists of
+Single sensor MIPI CSI-2 Rx (capture), USB-UVC (capture), and HDMI Tx (display).</p>
+<p><strong>Accelerators:</strong></p>
+<p>This is a block which can perform different video processing functions from Computer
+Vision or Machine learning. This is the variable part of the design. The accelerator
+and corresponding data/control interfaces (AXI-MM, AXI-Lite, interrupts)
+are generated by the Vitis tool and is integrated into the platform.</p>
+<section id="capture-pipeline">
+<h2><span class="section-number">5.2.1. </span>Capture Pipeline<a class="headerlink" href="#capture-pipeline" title="Permalink to this heading">¶</a></h2>
+<section id="single-sensor-mipi-capture">
+<h3><span class="section-number">5.2.1.1. </span>Single Sensor MIPI Capture<a class="headerlink" href="#single-sensor-mipi-capture" title="Permalink to this heading">¶</a></h3>
+<p>A capture pipeline receives frames from an external source and writes it into memory.
+The single sensor MIPI CSI-2 receiver capture pipeline is shown in the following figure.</p>
+<a class="reference internal image-reference" href="../_images/mipi_single.jpg"><img alt="Single Sensor MIPI capture" src="../_images/mipi_single.jpg" style="width: 800px;" /></a>
+<p>This pipeline consists of five components, of which four are controlled by the APU
+via an AXI-Lite based register interface; one is controlled by the APU via an I2C
+register interface.</p>
+<ul class="simple">
+<li><p>The <a class="reference external" href="https://leopardimaging.com/product/li-imx274-mipi-cs/">Sony IMX274</a> is a 1/2.5 inch CMOS digital image sensor with an active imaging
+pixel array of 3864H x2196V. The image sensor is controlled via an I2C interface
+using an AXI I2C controller in the PL. It is mounted on a FMC daughter card and
+has a MIPI output interface that is connected to the MIPI CSI-2 RX subsystem
+inside the PL. For more information refer to the <a class="reference external" href="https://www.leopardimaging.com/uploads/LI-IMX274-MIPI-CS_datasheet.pdf">LI-IMX274MIPI-FMC_datasheet</a>.</p></li>
+<li><p>The MIPI CSI-2 receiver subsystem (CSI Rx) includes a MIPI D-PHY core that connects
+four data lanes and one clock lane to the sensor on the FMC card. It implements a
+CSI-2 receive interface according to the MIPI CSI-2 standard v2.0 with underlying
+MIPI D-PHY standard v1.2. The subsystem captures images from the IMX274 sensor in
+RAW10 format and outputs AXI4-Stream video data. For more information see the MIPI
+CSI-2 Receiver Subsystem Product Guide (<a class="reference external" href="https://www.xilinx.com/support/documentation/ip_documentation/mipi_csi2_rx_subsystem/v5_0/pg232-mipi-csi2-rx.pdf">PG232</a>).</p></li>
+<li><p>The HDR extract block takes single digital overlapped frame from the sensor as input
+and returns two output exposure frames - Short Exposure Frame and a Long Exposure Frame.
+For more information on this function refer to <a class="reference external" href="https://xilinx.github.io/Vitis_Libraries/vision/2022.1/api-reference.html#extract-exposure-frames">Vitis Vision Libraries HDR Extract exposure frames</a>.</p></li>
+<li><p>Creating High Dynamic Range images requires at least two frames that are captured with
+different exposure times. HDR Merge module will generate the HDR frame with these varied
+exposure frames. HDR Merge in RGB domain is complex and expensive in terms of latency,
+because of camera response function. Hence the current module works in Bayer domain.
+For information on this function refer to <a class="reference external" href="https://xilinx.github.io/Vitis_Libraries/vision/2022.1/api-reference.html#hdr-merge">Vitis Vision Libraries HDR Merge</a>.</p></li>
+<li><p>The Image Single Processing IP is available in the Vitis Vision librarires
+(<a class="reference external" href="https://github.com/Xilinx/Vitis_Libraries/tree/master/vision/L1">https://github.com/Xilinx/Vitis_Libraries/tree/master/vision/L1</a>). The IP receives the
+RAW10 AXI4-Stream input data and interpolates the missing color components for every
+pixel to generate a 24-bit, 8 bits per pixel (8 bpc) RGB output image transported via
+AXI4-Stream. At 4 ppc, the AXIS width is 96-bit. A GPIO from the PS is used to reset
+the IP between resolution changes. For information on the functions it implments
+refer to <a class="reference external" href="https://xilinx.github.io/Vitis_Libraries/vision/2022.1/overview.html#isp-201">Vitis Vision Libraries Image Sensor Processing pipeline</a>.
+The ISP IP consists of following fucntions:</p>
+<ul>
+<li><p>The Badpixelcorrection module removes the defective pixels in the image as an image
+sensor may have a certain number of defective/bad pixels that may be the result of manufacturing faults or variations in pixel voltage levels based on temperature or exposure.</p></li>
+<li><p>The Gain control module improves the overall brightness of the input image by applying
+a multiplicative gain (weight) for red and blue channel to the input bayerized image.</p></li>
+<li><p>The Demosaicing module converts a single plane Bayer pattern output, from the digital
+camera sensors to a color image.</p></li>
+<li><p>The histogram module computes the histogram of given input image. The normalization module
+changes the range of pixel intensity values. Both modules are used to improve the contrast in the image.</p></li>
+</ul>
+</li>
+<li><p>The video processing subsystem (VPSS), see Video Processing Subsystem Product Guide
+(<a class="reference external" href="https://www.xilinx.com/support/documentation/ip_documentation/v_proc_ss/v2_0/pg231-v-proc-ss.pdf">PG231</a>),
+is a collection of video processing IP subcores. This instance uses the
+scaler only configuration which provides scaling, color space conversion, and chroma
+resampling functionality. The VPSS takes AXI4-Stream input data in 24-bit RGB format
+and converts it to a 16-bit, 8bpc YUV 4:2:2 output format. The following figure shows
+AXIS data interface at 4ppc. A GPIO pin from the PS is used to reset the subsystem
+between resolution changes.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/axis_databus_enc.jpg"><img alt="AXI-Stream Data Bus Encoding" src="../_images/axis_databus_enc.jpg" style="width: 1000px;" /></a>
+<ul class="simple">
+<li><p>The video frame buffer, see Video Frame Buffer Read and Video Frame Buffer Write
+LogiCORE IP Product Guide (<a class="reference external" href="https://www.xilinx.com/support/documentation/ip_documentation/v_frmbuf/v1_0/pg278-v-frmbuf.pdf">PG278</a>)
+takes YUV 4:2:2 sub-sampled AXI4-Stream input data
+and converts it to AXI4-MM format which is written to memory as 16-bit packed YUYV.
+The AXI-MM interface is connected to the system DDR via NOC. For each video frame
+transfer, an interrupt is generated. A GPIO is used to reset the IP between
+resolution changes.</p></li>
+</ul>
+<p>All the IPs in this pipeline are configured to transport 4ppc &#64; 150 MHz, enabling up to
+3840x2160 resolution at 30 HDR frames per second (fps). Each HDR frame is a composite
+of a long exposure frame and a short exposure frame, so effective frame rate is 60fps.</p>
+<ul class="simple">
+<li><p>Time to transfer one frame: (3840 + 560) x (2160 + 90) / (150 MHz * 4ppc) = 0.0165 ms</p></li>
+<li><p>Number of frames transferred per second = 1/0.0165 = 60 frames</p></li>
+</ul>
+<p>Note: In this calculation the vertical blanking accounts for 90 pixels per line and the
+horizontal blanking for 560 lines per video frame.</p>
+<p>The video resolution, frame format and frame rate are set via register writes through
+the AXI-Lite interface of the IPs at run-time. The drivers for the above blocks provide
+APIs to set these values in a user application.</p>
+<ul class="simple">
+<li><p>For the pass-through design (no accelerator) user can choose between 720p60, 1080p60,
+and 2160p30.</p></li>
+</ul>
+</section>
+</section>
+<section id="display-pipeline">
+<h2><span class="section-number">5.2.2. </span>Display Pipeline<a class="headerlink" href="#display-pipeline" title="Permalink to this heading">¶</a></h2>
+<p>An output pipeline reads video frames from memory and sends the frames to a sink. In this
+case the sink is a display and therefore this pipeline is also referred to as a display
+pipeline. The HDMI display pipeline is shown in the following figure.</p>
+<a class="reference internal image-reference" href="../_images/hdmi_tx.jpg"><img alt="HDMI transamit" src="../_images/hdmi_tx.jpg" style="width: 1200px;" /></a>
+<p>This pipeline consists of three main components, all of them controlled by the APU via
+an AXI- Lite base register interface:</p>
+<ul class="simple">
+<li><p>The video mixer IP core is configured to support blending of up to eight overlay
+AXI4 interfaces connected to the NOC via two interconnects. Two interconnects are
+required to reduce arbitration across ports. The main AXI-MM layer has the resolution
+set  to match the display. The other layers, whatever their resolution, is blended
+with this layer. Four videolayers are configured for YUYV and the other four are
+configured for RGB. The AXI4-Stream output interface is a 96-bit bus that transports
+4ppc for up to 2160p60 performance. It is connected to the HDMI Tx subsystem input
+interface. A GPIO is used to reset the subsystem between resolution changes. For more
+information refer to the input interface Video Mixer LogiCORE IP Product Guide (<a class="reference external" href="https://www.xilinx.com/cgi-bin/docs/ipdoc?c=v_mix%3Bv%3Dlatest%3Bd%3Dpg243-v-mix.pdf">PG243</a>).</p></li>
+</ul>
+<p>Note: The mixer configuration remains the same for different capture sources. To enable/
+disable various layers, software programs the layer enable register in the IP</p>
+<ul class="simple">
+<li><p>The HDMI transmitter subsystem (HDMI Tx) interfaces with PHY layers and provides HDMI
+encoding functionality. The subsystem is a hierarchical IP that bundles a collection
+of HDMI TX-related IP sub-cores and outputs them as a single IP. The subsystem
+generates an HDMI stream from the incoming AXI4-Stream video data and sends the
+generated link data to the video PHY layer. For more information refer to the HDMI 1.4/
+2.0 Transmitter Subsystem Product Guide (<a class="reference external" href="https://www.xilinx.com/cgi-bin/docs/ipdoc?c=v_hdmi_tx_ss%3Bv%3Dlatest%3Bd%3Dpg235-v-hdmi-tx-ss.pdf">PG235</a>).</p></li>
+<li><p>The HDMI GT controller and PHY (GT) enables plug-and-play connectivity with the video
+transmit or receive subsystems. The interface between the media access control (MAC)
+and physical (PHY) layers are standardized to enable ease of use in accessing shared
+gigabit- transceiver (GT) resources. The data recovery unit (DRU) is used to support
+lower line rates for the HDMI protocol. An AXI4-Lite register interface is provided to
+enable dynamic accesses of transceiver controls/status. For more information refer to
+the HDMI GT Controller LogiCORE IP Product Guide (<a class="reference external" href="https://www.xilinx.com/support/documentation/ip_documentation/hdmi_gt_controller/v1_0/pg334-hdmi-gt-controller.pdf">PG334</a>).</p></li>
+<li><p>The HDMI re-timer converts serial HDMI output signals to transition minimized
+differential signals (TMDS) compliant with HDMI signaling. For more information refer
+to <a class="reference external" href="http://www.ti.com/lit/ds/symlink/sn65dp159.pdf">SNx5DP159 datasheet</a>.</p></li>
+</ul>
+</section>
+<section id="cpm-pcie-capture-display">
+<h2><span class="section-number">5.2.3. </span>CPM-PCIe Capture &amp; Display<a class="headerlink" href="#cpm-pcie-capture-display" title="Permalink to this heading">¶</a></h2>
+<p>The integrated block for PCIe Rev. 4.0 with DMA and CCIX Rev. 1.0  (CPM) including DMA (QDMA) and two PCIe Controllers 0 &amp; 1, is hardened in Versal ACAP devices.
+PCIE Controller 0 configured in Gen4 x8 mode transfers data from both host (X86) to end-point (VCK190) and vice-versa.
+On host-to-endpoint channel, Video frames recieved from host are written to DDR by QDMA via Network-on-Chip (NOC).
+On endpoint-to-host channel, processed Video frames from DDR are transfered to host and displayed on a monitor.</p>
+<p>The QDMA Buffer Descriptors to move data in both the Host to end-point (H2C) direction, or the end-point to Host (C2H)
+direction are configured by Host via PCIe Interface. The driver for the block provide APIs to set these values in a user application.</p>
+<p>For more information on CPM-PCIe &amp; QDMA please refer to Versal ACAP CPM DMA and Bridge Mode for PCI Express v2.1
+Product Guide (<a class="reference external" href="https://www.xilinx.com/support/documentation/ip_documentation/versal_cips/v2_1/pg347-cpm-dma-bridge.pdf">PG347</a>).</p>
+</section>
+<section id="pcie-user-space-register">
+<h2><span class="section-number">5.2.4. </span>PCIe User Space Register<a class="headerlink" href="#pcie-user-space-register" title="Permalink to this heading">¶</a></h2>
+<p>For hand shaking between host and endpoint applications, the user space register IP provides a set of registers.</p>
+<p>There are total 32 4-byte wide registers starting from offset 0x00 that have read/write access from the PS. Each
+register is byte addressable, which means the address for the second register can be calculated by adding four to the address of the first one.</p>
+<p>Similarly, there are 32 4-byte wide registers having read/write access from the host. Detailed mapping of these registers is documented in PCIe EP driver section in software architecture.</p>
+</section>
+<section id="clocks-resets-and-interrupts">
+<h2><span class="section-number">5.2.5. </span>Clocks, Resets and Interrupts<a class="headerlink" href="#clocks-resets-and-interrupts" title="Permalink to this heading">¶</a></h2>
+<p>The following table lists the clock frequencies of key ACAP components and memory.
+For more information refer to the Versal ACAP Technical Reference Manual (<a class="reference external" href="https://www.xilinx.com/cgi-bin/docs/ndoc?t=architecture-manuals%3Bd%3Dam011-versal-acap-trm.pdf">AM011</a>).</p>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text"><strong>Table 1: Key Component Clock Frequencies</strong></span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Clock Frequency</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ACPU</p></td>
+<td><p>1,000 MHz</p></td>
+</tr>
+<tr class="row-odd"><td><p>NOC</p></td>
+<td><p>950 MHz</p></td>
+</tr>
+<tr class="row-even"><td><p>NPI</p></td>
+<td><p>300 MHz</p></td>
+</tr>
+<tr class="row-odd"><td><p>LPDDR</p></td>
+<td><p>1,600</p></td>
+</tr>
+<tr class="row-even"><td><p>AIE</p></td>
+<td><p>1,000</p></td>
+</tr>
+</tbody>
+</table>
+<p>The following table identifies the main clocks of the PL design, their source,
+their clock frequency, and their function.</p>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text"><strong>Table 2: System Clocks</strong></span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 18.8%" />
+<col style="width: 18.8%" />
+<col style="width: 18.8%" />
+<col style="width: 43.8%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Clock</p></th>
+<th class="head"><p>Clock Source</p></th>
+<th class="head"><p>Clock Frequency</p></th>
+<th class="head"><p>Function</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pl0_ref_clk</p></td>
+<td><p>CIPS</p></td>
+<td><p>100 MHz</p></td>
+<td><p>Clock source for clocking wizard.</p></td>
+</tr>
+<tr class="row-odd"><td><p>clk_out1</p></td>
+<td><p>Clocking wizard</p></td>
+<td><p>150 MHz</p></td>
+<td><p>AXI MM clock and AXI Stream clock used in the capture of platform2, display pipeline, and processing pipeline.</p></td>
+</tr>
+<tr class="row-even"><td><p>clk_out2</p></td>
+<td><p>Clocking wizard</p></td>
+<td><p>105 MHz</p></td>
+<td><p>AXI-Lite clock to configure the different IPs in the design.</p></td>
+</tr>
+<tr class="row-odd"><td><p>clk_out3</p></td>
+<td><p>Clocking wizard</p></td>
+<td><p>200 MHz</p></td>
+<td><p>MIPI D-PHY core clock. Also the AXI MM clock and AXI Stream clock used in the capture pipeline of plaform2.</p></td>
+</tr>
+<tr class="row-even"><td><p>sys_clk0</p></td>
+<td><p>SI570 (External)</p></td>
+<td><p>200 MHz</p></td>
+<td><p>Differential clock source used internally by the memory controller to generate various clocks to access DDR memory.</p></td>
+</tr>
+<tr class="row-odd"><td><p>HDMI DRU clock</p></td>
+<td><p>SI570 (External)</p></td>
+<td><p>200 MHz</p></td>
+<td><p>Clock for data recovery unit for low line rates.</p></td>
+</tr>
+<tr class="row-even"><td><p>HDMI GT TX reference clock</p></td>
+<td><p>IDT 8T49N241(External)</p></td>
+<td><p>Variable</p></td>
+<td><p>GT Transmit clock source to support various HDMI resolutions.</p></td>
+</tr>
+<tr class="row-odd"><td><p>HDMI GT RX reference clock</p></td>
+<td><p>Si570 (External);</p></td>
+<td><p>Variable</p></td>
+<td><p>GT receive clock to support various HDMI resolutions.</p></td>
+</tr>
+<tr class="row-even"><td><p>Audio clock</p></td>
+<td><p>Si570 (External)</p></td>
+<td><p>Variable</p></td>
+<td><p>Master reference clock to generate audio stream at the required sampling rate.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The PL0 clock is provided by the PLL inside the PMC domain and is used as the
+reference input clock for the clocking wizard instance. This clock does not
+drive any loads directly. A clocking wizard instance is used to de-skew the
+clock and to provide three phase-aligned output clocks, clk_out1, clk_out2
+and clk_out3.</p>
+<p>The clk_out2 is used to drive most of the AXI-Lite control interfaces of the
+IPs in the PL. AXI-Lite interfaces are typically used to configure registers
+and therefore can operate at a lower frequency than data path interfaces.
+Exception is the AXI-Lite interfaces of HLS based IP cores where the control
+and data plane use either clk_out1 or clk_out3.</p>
+<p>The clk_out1 clock drives the AXI MM interfaces and AXI Stream interfaces of
+the display pipeline and processing pipeline. It also drives AXI MM interfaces
+and AXI Stream interfaces of the capture pipeline of platform2. The clk_out3
+clock drives the AXI MM interfaces and AXI Stream interfaces of the capture
+pipeline in platform1.</p>
+<p>For details on HDMI Tx and HDMI GT clocking structure and requirements refer to
+HDMI 1.4/2.0 Transmitter Subsystem Product Guide (<a class="reference external" href="https://www.xilinx.com/cgi-bin/docs/ipdoc?c=v_hdmi_tx_ss%3Bv%3Dlatest%3Bd%3Dpg235-v-hdmi-tx-ss.pdf">PG235</a>) and HDMI GT Controller
+LogiCORE IP Product Guide (<a class="reference external" href="https://www.xilinx.com/support/documentation/ip_documentation/hdmi_gt_controller/v1_0/pg334-hdmi-gt-controller.pdf">PG334</a>). For HDMI Tx, an external clock chip is used
+to generate the GT reference clock depending on the display resolution. Various
+other HDMI related clocks are derived from the GT reference clock and generated
+internally by the HDMI GT controller; only for the DRU a fixed reference clock
+is provided externally by a Si570 clock chip.</p>
+<p>For details on the various clock chips used refer to the VCK190 Evaluation Board
+User Guide (<a class="reference external" href="https://www.xilinx.com/support/documentation/boards_and_kits/vck190/ug1366-vck190-eval-bd.pdf">UG1366</a>).</p>
+<p>The master reset (pl_resetn0) is generated by the PS during boot and is used as
+input to the four processing system (PS) reset modules in the PL. Each module
+generates synchronous, active-Low and active-High interconnect and peripheral
+resets that drive all IP cores synchronous to the respective, clk_out0, clk_out1,
+and clk_out2 clock domains.</p>
+<p>Apart from these system resets, there are asynchronous resets driven by PS GPIO
+pins. The respective device drivers control these resets which can be toggled at
+run-time to reset HLS- based cores. The following table summarizes the PL resets
+used in this design.</p>
+<table class="docutils align-default" id="id6">
+<caption><span class="caption-text"><strong>Table 3: PL Resets</strong></span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Reset Source</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pl0_resetn</p></td>
+<td><p>PL reset for proc_sys_reset modules</p></td>
+</tr>
+<tr class="row-odd"><td><p>rst_processor_150MHz</p></td>
+<td><p>Synchronous resets for clk_out0 clock domain</p></td>
+</tr>
+<tr class="row-even"><td><p>rst_processor_105MHz</p></td>
+<td><p>Synchronous resets for clk_out1 clock domain</p></td>
+</tr>
+<tr class="row-odd"><td><p>rst_processor_200MHz</p></td>
+<td><p>Synchronous resets for clk_out3 clock domain</p></td>
+</tr>
+<tr class="row-even"><td><p>lpd_gpio_o 0</p></td>
+<td><p>Asynchronous reset for the video mixer IP</p></td>
+</tr>
+<tr class="row-odd"><td><p>lpd_gpio_o 1</p></td>
+<td><p>Asynchronous reset for the HDR extract IP</p></td>
+</tr>
+<tr class="row-even"><td><p>lpd_gpio_o 2</p></td>
+<td><p>Asynchronous reset for the HDR merge IP</p></td>
+</tr>
+<tr class="row-odd"><td><p>lpd_gpio_o 3</p></td>
+<td><p>Asynchronous reset for the demosaic IP</p></td>
+</tr>
+<tr class="row-even"><td><p>lpd_gpio_o 4</p></td>
+<td><p>Asynchronous reset for the VPSS CSC IP</p></td>
+</tr>
+<tr class="row-odd"><td><p>lpd_gpio_o 5</p></td>
+<td><p>Asynchronous reset for the frame buffer write IP</p></td>
+</tr>
+<tr class="row-even"><td><p>lpd_gpio_o 6</p></td>
+<td><p>Asynchronous reset for the sensor GPIO</p></td>
+</tr>
+</tbody>
+</table>
+<p>The following table lists the PL-to-PS interrupts used in this design.</p>
+<table class="docutils align-default" id="id7">
+<caption><span class="caption-text"><strong>Table 4: Interrupts</strong></span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Interrupt ID</p></th>
+<th class="head"><p>Instance</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pl_ps_irq0</p></td>
+<td><p>HDMI GT Controller</p></td>
+</tr>
+<tr class="row-odd"><td><p>pl_ps_irq1</p></td>
+<td><p>HDMI Tx subsystem</p></td>
+</tr>
+<tr class="row-even"><td><p>pl_ps_irq2</p></td>
+<td><p>Video Mixer</p></td>
+</tr>
+<tr class="row-odd"><td><p>pl_ps_irq3</p></td>
+<td><p>HDMI I2C</p></td>
+</tr>
+<tr class="row-even"><td><p>pl_ps_irq4</p></td>
+<td><p>AXI Performance Monitor</p></td>
+</tr>
+<tr class="row-odd"><td><p>pl_ps_irq5</p></td>
+<td><p>Audio formatter memory-mapped to stream</p></td>
+</tr>
+<tr class="row-even"><td><p>pl_ps_irq6</p></td>
+<td><p>MIPI RX subsytem</p></td>
+</tr>
+<tr class="row-odd"><td><p>pl_ps_irq7</p></td>
+<td><p>MIPI I2C</p></td>
+</tr>
+<tr class="row-even"><td><p>pl_ps_irq8</p></td>
+<td><p>Frame buffer write interrupt</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p>Licensed under the Apache License, Version 2.0 (the “License”); you may not use this file
+except in compliance with the License.</p>
+<p>You may obtain a copy of the License at
+<a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+<p>Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific language governing permissions
+and limitations under the License.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+                  <style>
+                        .footer {
+                        position: fixed;
+                        left: 0;
+                        bottom: 0;
+                        width: 100%;
+                        }
+                  </style>
+				  
+				  <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="arch-sw.html" class="btn btn-neutral float-left" title="5.1. Software Architecture of the Platform" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="arch-filter2d.html" class="btn btn-neutral float-right" title="5.3. Accelerator - 2D Filter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2023, Advanced Micro Devices, Inc.
+      <span class="lastupdated">Last updated on May 19, 2023.
+      </span></p>
+  </div>
+
+
+
+										<div class="aem-Grid aem-Grid--16">
+											<div class="aem-GridColumn aem-GridColumn--xxxlarge--none aem-GridColumn--xsmall--16 aem-GridColumn--offset--xsmall--0 aem-GridColumn--xlarge--none aem-GridColumn--xxlarge--none aem-GridColumn--default--none aem-GridColumn--offset--large--1 aem-GridColumn--xlarge--12 aem-GridColumn--offset--default--0 aem-GridColumn--xxlarge--10 aem-GridColumn--offset--xlarge--2 aem-GridColumn--offset--xxlarge--3 aem-GridColumn--offset--xxxlarge--4 aem-GridColumn--xsmall--none aem-GridColumn--large--none aem-GridColumn aem-GridColumn--large--14 aem-GridColumn--xxxlarge--8 aem-GridColumn--default--16">
+												<div class="container-fluid sub-footer">
+
+													                    <div class="row">
+                        <div class="col-xs-24">
+                          <p><a target="_blank" href="https://www.amd.com/en/corporate/copyright">Terms and Conditions</a> | <a target="_blank" href="https://www.amd.com/en/corporate/privacy">Privacy</a> | <a target="_blank" href="https://www.amd.com/en/corporate/cookies">Cookie Policy</a> | <a target="_blank" href="https://www.amd.com/en/corporate/trademarks">Trademarks</a> | <a target="_blank" href="https://www.amd.com/system/files/documents/statement-human-trafficking-forced-labor.pdf">Statement on Forced Labor</a> | <a target="_blank" href="https://www.amd.com/en/corporate/competition">Fair and Open Competition</a> | <a target="_blank" href="https://www.amd.com/system/files/documents/amd-uk-tax-strategy.pdf">UK Tax Strategy</a> | <a target="_blank" href="https://docs.xilinx.com/v/u/9x6YvZKuWyhJId7y7RQQKA">Inclusive Terminology</a> | <a href="#cookiessettings" class="ot-sdk-show-settings">Cookies Settings</a></p>
+                        </div>
+                    </div>
+												</div>
+											</div>
+										</div>
+										
+</br>
+
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

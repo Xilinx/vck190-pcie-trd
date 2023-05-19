@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+<!-- OneTrust Cookies Consent Notice start for xilinx.github.io -->
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script="03af8d57-0a04-47a6-8f10-322fa00d8fc7" ></script>
+<script type="text/javascript">
+function OptanonWrapper() { }
+</script>
+<!-- OneTrust Cookies Consent Notice end for xilinx.github.io -->
+<!-- Google Tag Manager -->
+<script type="text/plain" class="optanon-category-C0002">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5RHQV7');</script>
+<!-- End Google Tag Manager -->
+  <title>3.3. Run 2D Filter Application &mdash; Versal PCIe TRD 2022.2 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3.4. Run XVDPU application" href="run-xvdpu.html" />
+    <link rel="prev" title="3.2. Run the PCIe TRD Dashboard" href="run-dashboard.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-5RHQV7" height="0" width="0" style="display:none;visibility:hidden" class="optanon-category-C0002"></iframe></noscript>
+<!-- End Google Tag Manager --> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+            <a href="../index.html" class="icon icon-home"> Versal PCIe TRD
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../revision.html">1. Revision History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">2. Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../run.html">3. Run the Prebuilt Image</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="run-setup.html">3.1. Board and System settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run-dashboard.html">3.2. Run the PCIe TRD Dashboard</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">3.3. Run 2D Filter Application</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#connect-to-the-jupyterlab-server">3.3.1. Connect to the JupyterLab Server</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setting-up-a-private-network">3.3.1.1. Setting up a private network</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#start-the-notebook">3.3.1.2. Start the Notebook</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#run-the-jupyter-notebooks">3.3.2. Run the Jupyter Notebooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-host-and-end-point-applications">3.3.3. Run Host and End-Point applications</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#run-host-application">3.3.3.1. Run Host application</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-end-point-application">3.3.3.2. Run end-point application</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="run-xvdpu.html">3.4. Run XVDPU application</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">4. Build an Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../arch.html">5. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../known-issues.html">6. Known Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../support.html">7. Support</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: black" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Versal PCIe TRD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../run.html"><span class="section-number">3. </span>Run the Prebuilt Image</a> &raquo;</li>
+      <li><span class="section-number">3.3. </span>Run 2D Filter Application</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/run/run-filter2d.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="run-2d-filter-application">
+<h1><span class="section-number">3.3. </span>Run 2D Filter Application<a class="headerlink" href="#run-2d-filter-application" title="Permalink to this heading">¶</a></h1>
+<p>Jupyter Notebooks are used to demonstarte the workings of the
+platform with filter2d accelerator.
+A network connection is required to run these Notebooks.</p>
+<section id="connect-to-the-jupyterlab-server">
+<h2><span class="section-number">3.3.1. </span>Connect to the JupyterLab Server<a class="headerlink" href="#connect-to-the-jupyterlab-server" title="Permalink to this heading">¶</a></h2>
+<p>Follow these steps to boot the board into Linux. These steps can be skipped
+if you are already at the Linux prompt <em>xilinx-vck190-20222</em></p>
+<ul class="simple">
+<li><p>Ensure all steps under the section <a class="reference internal" href="run-setup.html#board-setup"><span class="std std-ref">Board Setup</span></a> are
+verified.</p></li>
+<li><p>Insert the prepared micro SD card into the Versal SD card slot (refer to the
+image in <a class="reference internal" href="run-setup.html#board-setup"><span class="std std-ref">Board Setup</span></a>)</p></li>
+<li><p>Have the UART0 terminal emulator tab connected.</p></li>
+<li><p>Turn ON power switch SW13.</p></li>
+<li><p>On Versal UART0 terminal, you would see the Versal device booting from the
+micro SD card, starting with the message
+“Xilinx Versal Platform Loader and Manager”</p></li>
+<li><p>In about 60 seconds boot is complete. Observe the Linux prompt
+<em>xilinx-vck190-20222</em> and autostart of JupyterLab server as shown in the example below:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>xilinx-vck190-20222<span class="w"> </span>login:<span class="w"> </span><span class="o">[</span><span class="w">   </span><span class="m">32</span>.678707<span class="o">]</span><span class="w"> </span>trd-dashboard.sh<span class="o">[</span><span class="m">700</span><span class="o">]</span>:<span class="w"> </span>TRD<span class="w"> </span>Dashboard<span class="w"> </span>will<span class="w"> </span>be<span class="w"> </span>running<span class="w"> </span>at<span class="w"> </span>http://192.168.xx.x:5006/trd-dashboard
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.276906<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w"> </span><span class="o">[</span>I<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:49.435<span class="w"> </span>ServerApp<span class="o">]</span><span class="w"> </span>jupyterlab<span class="w"> </span><span class="p">|</span><span class="w"> </span>extension<span class="w"> </span>was<span class="w"> </span>successfully<span class="w"> </span>linked.
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.466903<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w"> </span><span class="o">[</span>I<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:49.625<span class="w"> </span>LabApp<span class="o">]</span><span class="w"> </span>JupyterLab<span class="w"> </span>extension<span class="w"> </span>loaded<span class="w"> </span>from<span class="w"> </span>/usr/lib/python3.9/site-packages/jupyterlab
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.467175<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w"> </span><span class="o">[</span>I<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:49.626<span class="w"> </span>LabApp<span class="o">]</span><span class="w"> </span>JupyterLab<span class="w"> </span>application<span class="w"> </span>directory<span class="w"> </span>is<span class="w"> </span>/usr/share/jupyter/lab
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.486329<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w"> </span><span class="o">[</span>I<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:49.645<span class="w"> </span>ServerApp<span class="o">]</span><span class="w"> </span>jupyterlab<span class="w"> </span><span class="p">|</span><span class="w"> </span>extension<span class="w"> </span>was<span class="w"> </span>successfully<span class="w"> </span>loaded.
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.488982<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w"> </span><span class="o">[</span>I<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:49.647<span class="w"> </span>ServerApp<span class="o">]</span><span class="w"> </span>Serving<span class="w"> </span>notebooks<span class="w"> </span>from<span class="w"> </span><span class="nb">local</span><span class="w"> </span>directory:<span class="w"> </span>/usr/share/notebooks
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.489246<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w"> </span><span class="o">[</span>I<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:49.648<span class="w"> </span>ServerApp<span class="o">]</span><span class="w"> </span>Jupyter<span class="w"> </span>Server<span class="w"> </span><span class="m">1</span>.13.5<span class="w"> </span>is<span class="w"> </span>running<span class="w"> </span>at:
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.489410<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w"> </span><span class="o">[</span>I<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:49.648<span class="w"> </span>ServerApp<span class="o">]</span><span class="w"> </span>http://192.168.xx.x:8888/lab?token<span class="o">=</span>a756968d5f885e7c3bee91ffddb42735bb45a90eb29b1356
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.489540<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w"> </span><span class="o">[</span>I<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:49.648<span class="w"> </span>ServerApp<span class="o">]</span><span class="w">  </span>or<span class="w"> </span>http://127.0.0.1:8888/lab?token<span class="o">=</span>a756968d5f885e7c3bee91ffddb42735bb45a90eb29b1356
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.489711<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w"> </span><span class="o">[</span>I<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:49.648<span class="w"> </span>ServerApp<span class="o">]</span><span class="w"> </span>Use<span class="w"> </span>Control-C<span class="w"> </span>to<span class="w"> </span>stop<span class="w"> </span>this<span class="w"> </span>server<span class="w"> </span>and<span class="w"> </span>shut<span class="w"> </span>down<span class="w"> </span>all<span class="w"> </span>kernels<span class="w"> </span><span class="o">(</span>twice<span class="w"> </span>to<span class="w"> </span>skip<span class="w"> </span>confirmation<span class="o">)</span>.
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.515070<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w"> </span><span class="o">[</span>C<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:49.674<span class="w"> </span>ServerApp<span class="o">]</span>
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.515296<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.515404<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w">     </span>To<span class="w"> </span>access<span class="w"> </span>the<span class="w"> </span>server,<span class="w"> </span>open<span class="w"> </span>this<span class="w"> </span>file<span class="w"> </span><span class="k">in</span><span class="w"> </span>a<span class="w"> </span>browser:
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.515504<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w">         </span>file:///home/root/.local/share/jupyter/runtime/jpserver-710-open.html
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.515603<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w">     </span>Or<span class="w"> </span>copy<span class="w"> </span>and<span class="w"> </span>paste<span class="w"> </span>one<span class="w"> </span>of<span class="w"> </span>these<span class="w"> </span>URLs:
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.515729<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w">         </span>http://192.168.xx.x:8888/lab?token<span class="o">=</span>a756968d5f885e7c3bee91ffddb42735bb45a90eb29b1356
+<span class="o">[</span><span class="w">   </span><span class="m">43</span>.515821<span class="o">]</span><span class="w"> </span>start-jupyter.sh<span class="o">[</span><span class="m">710</span><span class="o">]</span>:<span class="w">      </span>or<span class="w"> </span>http://127.0.0.1:8888/lab?token<span class="o">=</span>a756968d5f885e7c3bee91ffddb42735bb45a90eb29b1356
+<span class="o">[</span><span class="w">   </span><span class="m">44</span>.586990<span class="o">]</span><span class="w"> </span>trd-dashboard.sh<span class="o">[</span><span class="m">718</span><span class="o">]</span>:<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:50,745<span class="w"> </span>Starting<span class="w"> </span>Bokeh<span class="w"> </span>server<span class="w"> </span>version<span class="w"> </span><span class="m">2</span>.4.2<span class="w"> </span><span class="o">(</span>running<span class="w"> </span>on<span class="w"> </span>Tornado<span class="w"> </span><span class="m">6</span>.1<span class="o">)</span>
+<span class="o">[</span><span class="w">   </span><span class="m">44</span>.592878<span class="o">]</span><span class="w"> </span>trd-dashboard.sh<span class="o">[</span><span class="m">718</span><span class="o">]</span>:<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:50,751<span class="w"> </span>User<span class="w"> </span>authentication<span class="w"> </span>hooks<span class="w"> </span>NOT<span class="w"> </span>provided<span class="w"> </span><span class="o">(</span>default<span class="w"> </span>user<span class="w"> </span>enabled<span class="o">)</span>
+<span class="o">[</span><span class="w">   </span><span class="m">44</span>.604626<span class="o">]</span><span class="w"> </span>trd-dashboard.sh<span class="o">[</span><span class="m">718</span><span class="o">]</span>:<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:50,763<span class="w"> </span>Bokeh<span class="w"> </span>app<span class="w"> </span>running<span class="w"> </span>at:<span class="w"> </span>http://localhost:5006/trd-dashboard
+<span class="o">[</span><span class="w">   </span><span class="m">44</span>.604862<span class="o">]</span><span class="w"> </span>trd-dashboard.sh<span class="o">[</span><span class="m">718</span><span class="o">]</span>:<span class="w"> </span><span class="m">2023</span>-03-27<span class="w"> </span><span class="m">03</span>:04:50,764<span class="w"> </span>Starting<span class="w"> </span>Bokeh<span class="w"> </span>server<span class="w"> </span>with<span class="w"> </span>process<span class="w"> </span>id:<span class="w"> </span><span class="m">718</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Copy the above URL <cite>http://192.168.xx.x:8888/?token=1f69939d70cdedd044adb64c91d26a75c01da7ad34f8ff03</cite> to the chrome browser.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If for any reason target fails to grab an IP address from the network, jupyter server would fail to issue an URL.
+In such a case user is recommended to fix the IP address and restart the jupyter server by following below steps till <cite>Copy the generated URL onto browser</cite>.</p>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>systemctl<span class="w"> </span>stop<span class="w"> </span>jupyter-setup
+systemctl<span class="w"> </span>start<span class="w"> </span>jupyter-setup
+</pre></div>
+</div>
+<p>To look up the jupyter server IP address and token on the target, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>journalctl<span class="w"> </span>-u<span class="w"> </span>jupyter-setup
+</pre></div>
+</div>
+<ul>
+<li><p>Users can check status of the systemd service ‘jupyter-setup’ any time for debug info:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>xilinx-vck190-20222:~$<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>jupyter-setup
+*<span class="w"> </span>jupyter-setup.service<span class="w"> </span>-<span class="w"> </span>jupyter<span class="w"> </span>setup<span class="w"> </span>scripts
+<span class="w">     </span>Loaded:<span class="w"> </span>loaded<span class="w"> </span><span class="o">(</span>/lib/systemd/system/jupyter-setup.service<span class="p">;</span><span class="w"> </span>disabled<span class="p">;</span><span class="w"> </span>vendor<span class="w"> </span>preset:<span class="w"> </span>disabled<span class="o">)</span>
+<span class="w">     </span>Active:<span class="w"> </span>active<span class="w"> </span><span class="o">(</span>running<span class="o">)</span><span class="w"> </span>since<span class="w"> </span>Fri<span class="w"> </span><span class="m">2022</span>-11-19<span class="w"> </span><span class="m">10</span>:12:14<span class="w"> </span>PST<span class="p">;</span><span class="w"> </span>20min<span class="w"> </span>ago
+<span class="w">   </span>Main<span class="w"> </span>PID:<span class="w"> </span><span class="m">879</span><span class="w"> </span><span class="o">(</span>start-jupyter.s<span class="o">)</span>
+<span class="w">      </span>Tasks:<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="o">(</span>limit:<span class="w"> </span><span class="m">2237</span><span class="o">)</span>
+<span class="w">     </span>Memory:<span class="w"> </span><span class="m">125</span>.6M
+<span class="w">     </span>CGroup:<span class="w"> </span>/system.slice/jupyter-setup.service
+<span class="w">             </span><span class="p">|</span>-879<span class="w"> </span>/bin/bash<span class="w"> </span>/sbin/start-jupyter.sh
+<span class="w">             </span><span class="sb">`</span>-884<span class="w"> </span>python3<span class="w"> </span>/usr/bin/jupyter-lab<span class="w"> </span>--no-browser<span class="w"> </span>--allow-root<span class="w"> </span>--ip<span class="o">=</span><span class="m">192</span>.xxx.xx.xx
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you do not see any URL for the Juputer Notebook, you may have to setup
+a private network. Likely, DHCP is not available to allot the board an
+IP address. To setup a private network and start the notebook follow the
+instruction below.</p>
+</div>
+<section id="setting-up-a-private-network">
+<h3><span class="section-number">3.3.1.1. </span>Setting up a private network<a class="headerlink" href="#setting-up-a-private-network" title="Permalink to this heading">¶</a></h3>
+<p>In case of a private network, user can assign a static address within
+the subnet of the host machine.</p>
+<p><strong>Setting up a private network with target board and the host machine for
+Windows users:</strong></p>
+<ul>
+<li><p>Ensure a direct connection between the windows host machine and the target
+board using an ethernet cable as shown in the <a class="reference internal" href="run-setup.html#board-setup"><span class="std std-ref">Board Setup</span></a> section.</p></li>
+<li><p>In windows, run command prompt as an admisntrator</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Press<span class="w"> </span>Windows+R<span class="w"> </span>to<span class="w"> </span>open<span class="w"> </span>the<span class="w"> </span>“Run”<span class="w"> </span>box.
+Type<span class="w"> </span>“cmd”<span class="w"> </span>into<span class="w"> </span>the<span class="w"> </span>box.
+press<span class="w"> </span>Ctrl+Shift+Enter<span class="w"> </span>to<span class="w"> </span>run<span class="w"> </span>the<span class="w"> </span><span class="nb">command</span><span class="w"> </span>as<span class="w"> </span>an<span class="w"> </span>administrator
+</pre></div>
+</div>
+</li>
+<li><p>Run ipconfig on the windows machine to list available ethernet adapters and
+set a static private ip</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># A sample output after executing ipconfig</span>
+<span class="c1"># notice interface &quot;Ethernet&quot; has an auto address assigned with no Default Gateway</span>
+
+ipconfig
+
+Ethernet<span class="w"> </span>adapter<span class="w"> </span>Ethernet:
+
+<span class="w">   </span>Connection-specific<span class="w"> </span>DNS<span class="w"> </span>Suffix<span class="w">  </span>.<span class="w"> </span>:
+<span class="w">   </span>Link-local<span class="w"> </span>IPv6<span class="w"> </span>Address<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>:<span class="w"> </span>fe80::1d8d:ac40:ff9b:8d1%21
+<span class="w">   </span>Autoconfiguration<span class="w"> </span>IPv4<span class="w"> </span>Address.<span class="w"> </span>.<span class="w"> </span>:<span class="w"> </span><span class="m">169</span>.254.8.209
+<span class="w">   </span>Subnet<span class="w"> </span>Mask<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>:<span class="w"> </span><span class="m">255</span>.255.0.0
+<span class="w">   </span>Default<span class="w"> </span>Gateway<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>.<span class="w"> </span>:
+
+<span class="c1"># Set static ip address</span>
+netsh<span class="w"> </span>interface<span class="w"> </span>ip<span class="w"> </span><span class="nb">set</span><span class="w"> </span>address<span class="w"> </span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;YOUR INTERFACE NAME&quot;</span><span class="w"> </span>static<span class="w"> </span><span class="s2">&quot;IP_ADDRESS&quot;</span><span class="w"> </span><span class="s2">&quot;SUBNET_MASK&quot;</span>
+
+<span class="c1"># Example</span>
+netsh<span class="w"> </span>interface<span class="w"> </span>ip<span class="w"> </span><span class="nb">set</span><span class="w"> </span>address<span class="w"> </span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;Ethernet&quot;</span><span class="w"> </span>static<span class="w"> </span><span class="m">10</span>.0.0.1<span class="w"> </span><span class="m">255</span>.255.255.0
+</pre></div>
+</div>
+</li>
+<li><p>Ensure to boot the target board (VCK190) into Linux</p></li>
+<li><p>Set a private ip address for the target within the subnet of host machine and
+verify connectivity.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ifconfig<span class="w"> </span>eth0<span class="w"> </span><span class="m">10</span>.0.0.2<span class="w"> </span>netmask<span class="w"> </span><span class="m">255</span>.255.255.0
+
+<span class="c1"># Perform a ping test to the host form the target</span>
+ping<span class="w"> </span>-c<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="m">10</span>.0.0.1
+</pre></div>
+</div>
+</li>
+</ul>
+<p><strong>Setting up a private network with target board and the host machine for Linux
+users:</strong></p>
+<ul>
+<li><p>Make a direct connection between the Linux host machine and the target board
+using an ethernet cable</p></li>
+<li><p>Run ifconfig on the Linux machine to list available ethernet adapters and set
+a static private ip</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example to set an ip 10.0.0.1 to ethernet interface enp2s0:</span>
+sudo<span class="w"> </span>ifconfig<span class="w"> </span>enp2s0<span class="w"> </span><span class="m">10</span>.0.0.1<span class="w"> </span>netmask<span class="w"> </span><span class="m">255</span>.255.255.0
+</pre></div>
+</div>
+</li>
+<li><p>Ensure to boot the target board (VCK190) into Linux</p></li>
+<li><p>Set a private ip address for the target within the subnet of host machine and
+verify connectivity.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>ifconfig<span class="w"> </span>eth0<span class="w"> </span><span class="m">10</span>.0.0.2<span class="w"> </span>netmask<span class="w"> </span><span class="m">255</span>.255.255.0
+
+<span class="c1"># Perform a ping test to the host form the target</span>
+ping<span class="w"> </span>-c<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="m">10</span>.0.0.1
+</pre></div>
+</div>
+</li>
+<li><p>To start Jupyter Notebook run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>jupyter-setup
+sudo<span class="w"> </span>jupyter-lab<span class="w"> </span>list
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="start-the-notebook">
+<h3><span class="section-number">3.3.1.2. </span>Start the Notebook<a class="headerlink" href="#start-the-notebook" title="Permalink to this heading">¶</a></h3>
+<p><strong>Note:</strong> This demo is tested with Chrome browser only.</p>
+<ul>
+<li><p>To connect to the jupyter-server and start the Notebook, copy the
+generated URL with token on the prompt of Versal target and paste
+it to the Chrome browser address bar of the laptop, for example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>http://192.168.1.77:8888/?token<span class="o">=</span>06cfb958c61eb0581bb759f40e3a4c3a6252cef3b7075449
+</pre></div>
+</div>
+</li>
+<li><p>If you have lost the URL, to look up the jupyter server IP address and token on the
+target, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>jupyter-lab<span class="w">  </span>list
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+<section id="run-the-jupyter-notebooks">
+<h2><span class="section-number">3.3.2. </span>Run the Jupyter Notebooks<a class="headerlink" href="#run-the-jupyter-notebooks" title="Permalink to this heading">¶</a></h2>
+<p>This TRD includes the following jupyter notebooks:</p>
+<ol class="arabic">
+<li><p><strong>vck190-pcie-trd-nb1.ipynb:</strong> Demonstrates how to configure a V4L2 device or video raw file
+from host machine through pcie, processes media content through 2D filter(optional) and
+transfers processed content to host via PCIe (or) display the content on HDMI monitor.</p>
+<p>&gt;  <strong>NOTE</strong> : For PCIe use-cases, host application need to be run prior to running notebook
+(i.e. vck190-pcie-trd-nb1) on end point. The steps to run host application are documented
+in the following section.</p>
+</li>
+<li><p><strong>vck190-pcie-trd-nb2.ipynb:</strong>  Demonstrates how to capture video from a MIPI device, processes
+it through 2D convolution filter accelerator and display the output on a monitor using a
+DRM/KMS display device. This notebook uses the GStreamer multimedia framework. In addition,
+the memory bandwidth is measured and plotted in a parallel notebook.</p></li>
+</ol>
+<p>To run the notebooks, follow the below steps:</p>
+<ol class="arabic">
+<li><p>On the left pane of the browser, 2 notebooks are available under the folder
+PCIe TRD.</p></li>
+<li><p>Double click to open the notebook</p></li>
+<li><p>Select ‘Kernel’ → ‘Restart Kernel and Run All Cells’ from the top menu bar to
+run the demo.</p></li>
+<li><p>Scroll down to the end of the notebook to see the video output.</p></li>
+<li><p>Click the rectangular icon to interrupt the kernel and stop the video stream.</p></li>
+<li><p>Select ‘Kernel’ → ‘Shutdown Kernel’ → close the notebook tab and move to the
+next notebook.</p>
+<a class="reference internal image-reference" href="../_images/jnbh.jpg"><img alt="Jupyter_nb_home" src="../_images/jnbh.jpg" style="width: 1000px;" /></a>
+</li>
+</ol>
+<p><strong>Note1:</strong> Rerunning a TRD notebook may have spurious behavior, this is because software
+commands are designed to run in order and may not behave as expected in iterative runs when
+the kernel is not restarted. In practice, there are some command sequences that can be regressed,
+but the safest thing is to restart the Jupyter Notebook kernel with ‘kernel’ → ‘Interrupt kernel’
+, followed by ‘kernel’ → ‘Restart Kernel and Run All Cells’ when rerunning a notebook.</p>
+<p><strong>Note2:</strong> Jupyter-setup is expected to be started with root privilages ‘sudo systemctl start jupyter-setup’.
+If not started with root permission for the first atempt, then post install scripts will fail to execute
+and dot may throw an error creating a graph in png format. This can be resolved by executing ‘dot -c’ at the linux prompt .</p>
+</section>
+<section id="run-host-and-end-point-applications">
+<h2><span class="section-number">3.3.3. </span>Run Host and End-Point applications<a class="headerlink" href="#run-host-and-end-point-applications" title="Permalink to this heading">¶</a></h2>
+<p>As described in the previous sections host application provides control information to the Endpoint to run any usecase.</p>
+<section id="run-host-application">
+<h3><span class="section-number">3.3.3.1. </span>Run Host application<a class="headerlink" href="#run-host-application" title="Permalink to this heading">¶</a></h3>
+<p><strong>Note:</strong>  Make sure, HOST application is launched before starting EP application.</p>
+<p>Here are list of control information passed to endpoint :</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--<span class="w"> </span>Usecase<span class="w"> </span>to<span class="w"> </span>run.
+--<span class="w"> </span>Resolution.
+--<span class="w"> </span>Filter<span class="w"> </span>type.
+--<span class="w"> </span>FPS<span class="w"> </span><span class="o">(</span>Default<span class="w"> </span>30fps<span class="o">)</span>.
+--<span class="w"> </span>Rawvideofile<span class="w"> </span><span class="o">(</span>with<span class="w"> </span>abosolute<span class="w"> </span>path<span class="w"> </span>of<span class="w"> </span>video<span class="w"> </span>file<span class="w"> </span>to<span class="w"> </span>play<span class="o">)</span>.
+</pre></div>
+</div>
+</div></blockquote>
+<p>This example demonstrates Usecase-1(MIPI –&gt; 2D Image Processing –&gt; Appsink(PCIe))</p>
+<ol class="arabic">
+<li><p>First run Host Machine Software setup steps,Then execute pcie_host_app application as following.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./pcie_host_app</span>
+</pre></div>
+</div>
+</li>
+<li><p>From the eight usecases select any one of the usecase or 7 to quit application.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./pcie_host_app</span>
+Enter<span class="w"> </span><span class="m">1</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>MIPI--&gt;filter2d--&gt;pciesink--&gt;<span class="w"> </span>displayonhost
+Enter<span class="w"> </span><span class="m">2</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>MIPI--&gt;dpu--&gt;pciesink--&gt;<span class="w"> </span>displayonhost
+Enter<span class="w"> </span><span class="m">3</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>MIPI--&gt;pciesink--&gt;<span class="w"> </span>displayonhost
+Enter<span class="w"> </span><span class="m">4</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;pciesrc--&gt;filter2d--&gt;pciesink--&gt;displayonhost
+Enter<span class="w"> </span><span class="m">5</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;pciesink--&gt;displayonhost
+Enter<span class="w"> </span><span class="m">6</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;filter2d--&gt;kmssink
+Enter<span class="w"> </span><span class="m">7</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;dpu--&gt;kmssink
+Enter<span class="w"> </span><span class="m">8</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;kmssink
+Enter<span class="w"> </span><span class="m">9</span><span class="w"> </span>to<span class="w">    </span>:<span class="w"> </span>Exit<span class="w"> </span>application
+Enter<span class="w"> </span>your<span class="w"> </span>choice:1
+</pre></div>
+</div>
+</li>
+<li><p>Select desired resolution (Enter 1 or 2 ):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./pcie_host_app</span>
+Enter<span class="w"> </span><span class="m">1</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>MIPI--&gt;filter2d--&gt;pciesink--&gt;<span class="w"> </span>displayonhost
+Enter<span class="w"> </span><span class="m">2</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>MIPI--&gt;dpu--&gt;pciesink--&gt;<span class="w"> </span>displayonhost
+Enter<span class="w"> </span><span class="m">3</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>MIPI--&gt;pciesink--&gt;<span class="w"> </span>displayonhost
+Enter<span class="w"> </span><span class="m">4</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;pciesrc--&gt;filter2d--&gt;pciesink--&gt;displayonhost
+Enter<span class="w"> </span><span class="m">5</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;pciesink--&gt;displayonhost
+Enter<span class="w"> </span><span class="m">6</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;filter2d--&gt;kmssink
+Enter<span class="w"> </span><span class="m">7</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;dpu--&gt;kmssink
+Enter<span class="w"> </span><span class="m">8</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;kmssink
+Enter<span class="w"> </span><span class="m">9</span><span class="w"> </span>to<span class="w">    </span>:<span class="w"> </span>Exit<span class="w"> </span>application
+Enter<span class="w"> </span>your<span class="w"> </span>choice:1
+<span class="k">select</span><span class="w"> </span>the<span class="w"> </span>resolution
+<span class="m">1</span>.<span class="w"> </span>3840x2160
+<span class="m">2</span>.<span class="w"> </span>1920x1080
+Enter<span class="w"> </span>your<span class="w"> </span>choice:1
+</pre></div>
+</div>
+</li>
+<li><p>From below table select anyone filter-type   (Enter 0 - 10)</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./pcie_host_app</span>
+Enter<span class="w"> </span><span class="m">1</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>MIPI--&gt;filter2d--&gt;pciesink--&gt;<span class="w"> </span>displayonhost
+<span class="w"> </span>Enter<span class="w"> </span><span class="m">2</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>MIPI--&gt;dpu--&gt;pciesink--&gt;<span class="w"> </span>displayonhost
+<span class="w"> </span>Enter<span class="w"> </span><span class="m">3</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>MIPI--&gt;pciesink--&gt;<span class="w"> </span>displayonhost
+<span class="w"> </span>Enter<span class="w"> </span><span class="m">4</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;pciesrc--&gt;filter2d--&gt;pciesink--&gt;displayonhost
+<span class="w"> </span>Enter<span class="w"> </span><span class="m">5</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;pciesink--&gt;displayonhost
+<span class="w"> </span>Enter<span class="w"> </span><span class="m">6</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;filter2d--&gt;kmssink
+<span class="w"> </span>Enter<span class="w"> </span><span class="m">7</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;dpu--&gt;kmssink
+<span class="w"> </span>Enter<span class="w"> </span><span class="m">8</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;kmssink
+<span class="w"> </span>Enter<span class="w"> </span><span class="m">9</span><span class="w"> </span>to<span class="w">    </span>:<span class="w"> </span>Exit<span class="w"> </span>application
+<span class="w"> </span>Enter<span class="w"> </span>your<span class="w"> </span>choice:1
+<span class="w"> </span><span class="k">select</span><span class="w"> </span>the<span class="w"> </span>resolution
+<span class="w"> </span><span class="m">1</span>.<span class="w"> </span>3840x2160
+<span class="w"> </span><span class="m">2</span>.<span class="w"> </span>1920x1080
+<span class="w"> </span>Enter<span class="w"> </span>your<span class="w"> </span>choice:1
+<span class="w"> </span>Enter<span class="w"> </span>filter<span class="w"> </span><span class="nb">type</span><span class="w"> </span>value<span class="w"> </span><span class="m">0</span>-10:9
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic">
+<li><p>When application prompts below prints launch (vck190-pcie-trd-nb1.ipynb) jupyter notebook.</p>
+<p><strong>Note:</strong> Set ‘res’ variable in vck190-pcie-trd-nb1.ipynb to appropriate value to ensure resolution is same at host and end point.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Please<span class="w"> </span>run<span class="w"> </span><span class="s1">&#39;vck190-pcie-trd-nb1.ipynb&#39;</span><span class="w"> </span>jupyter<span class="w"> </span>notebook<span class="w"> </span>from<span class="w"> </span>endpoint<span class="w"> </span><span class="o">(</span>To<span class="w"> </span>launch<span class="w"> </span>endpoint<span class="w"> </span>application<span class="o">)</span>
+To<span class="w"> </span>quit<span class="w"> </span>usecase,<span class="w"> </span>hit<span class="w"> </span>&lt;q+enter&gt;<span class="w"> </span>from<span class="w"> </span>host
+</pre></div>
+</div>
+<p><strong>Note:</strong>  Only for <cite>MIPI</cite> usecase , hit &lt;q+enter&gt; from host to quit.</p>
+<p>From Usecase-4, User is expected to pass rawvideo file as an additional parameter.</p>
+</li>
+<li><p>Enter input filename with absolute path to play and depending on rawvideo file size usecases stops</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./pcie_host_app</span>
+Enter<span class="w"> </span><span class="m">1</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>MIPI--&gt;filter2d--&gt;pciesink--&gt;<span class="w"> </span>displayonhost
+Enter<span class="w"> </span><span class="m">2</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>MIPI--&gt;dpu--&gt;pciesink--&gt;<span class="w"> </span>displayonhost
+Enter<span class="w"> </span><span class="m">3</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>MIPI--&gt;pciesink--&gt;<span class="w"> </span>displayonhost
+Enter<span class="w"> </span><span class="m">4</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;pciesrc--&gt;filter2d--&gt;pciesink--&gt;displayonhost
+Enter<span class="w"> </span><span class="m">5</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;pciesink--&gt;displayonhost
+Enter<span class="w"> </span><span class="m">6</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;filter2d--&gt;kmssink
+Enter<span class="w"> </span><span class="m">7</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;dpu--&gt;kmssink
+Enter<span class="w"> </span><span class="m">8</span><span class="w"> </span>to<span class="w"> </span>run<span class="w">  </span>:<span class="w"> </span>RawVideofilefromHost--&gt;<span class="w"> </span>pciesrc--&gt;kmssink
+Enter<span class="w"> </span><span class="m">9</span><span class="w"> </span>to<span class="w">    </span>:<span class="w"> </span>Exit<span class="w"> </span>application
+Enter<span class="w"> </span>your<span class="w"> </span>choice<span class="w"> </span>:<span class="w"> </span><span class="m">4</span>
+<span class="k">select</span><span class="w"> </span>the<span class="w"> </span>resolution
+<span class="m">1</span>.<span class="w"> </span>3840x2160
+<span class="m">2</span>.<span class="w"> </span>1920x1080
+Enter<span class="w"> </span>your<span class="w"> </span>choice:2
+Enter<span class="w"> </span>input<span class="w"> </span>filename<span class="w"> </span>with<span class="w"> </span>path<span class="w"> </span>to<span class="w"> </span>transfer:<span class="w"> </span>~/xxx.yuv
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="run-end-point-application">
+<h3><span class="section-number">3.3.3.2. </span>Run end-point application<a class="headerlink" href="#run-end-point-application" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Launch vck190-pcie-trd-nb1.ipynb jupyter notebook. (For MIPI use case modify ‘res’ variable same as one selected at host application).</p></li>
+</ol>
+<p><strong>Note:</strong> Endpoint application exits after running the usecase, Hence restart <cite>vck190-pcie-trd-nb1.ipynb</cite> jupyter notebook to relaunch the endpoint application.</p>
+<p>Following Table lists the supported filter configuration in the design.</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text"><strong>Table 1: Supported Filter Configurations</strong></span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 31.6%" />
+<col style="width: 68.4%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Filter_type</p></th>
+<th class="head"><p>Filter name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>Blur filter</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>Edge filter</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>Horizontal Edge filter</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>Vertical Edge filter</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>Emboss filter</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>HGRAD filter</p></td>
+</tr>
+<tr class="row-even"><td><p>6</p></td>
+<td><p>VGRAD filter</p></td>
+</tr>
+<tr class="row-odd"><td><p>7</p></td>
+<td><p>Identity filter</p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td><p>Sharpe filter</p></td>
+</tr>
+<tr class="row-odd"><td><p>9</p></td>
+<td><p>Horizontal Sobel filter</p></td>
+</tr>
+<tr class="row-even"><td><p>10</p></td>
+<td><p>Vertical Sobel filter</p></td>
+</tr>
+</tbody>
+</table>
+<p>A filter version of big buck bunny video will start playing on the monitor.</p>
+<hr class="docutils" />
+<p>Licensed under the Apache License, Version 2.0 (the “License”); you may not use this file
+except in compliance with the License.</p>
+<p>You may obtain a copy of the License at
+<a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+<p>Unless required by applicable law or agreed to in writing, software distributed under the
+License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific language governing permissions
+and limitations under the License.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+                  <style>
+                        .footer {
+                        position: fixed;
+                        left: 0;
+                        bottom: 0;
+                        width: 100%;
+                        }
+                  </style>
+				  
+				  <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="run-dashboard.html" class="btn btn-neutral float-left" title="3.2. Run the PCIe TRD Dashboard" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="run-xvdpu.html" class="btn btn-neutral float-right" title="3.4. Run XVDPU application" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2023, Advanced Micro Devices, Inc.
+      <span class="lastupdated">Last updated on May 19, 2023.
+      </span></p>
+  </div>
+
+
+
+										<div class="aem-Grid aem-Grid--16">
+											<div class="aem-GridColumn aem-GridColumn--xxxlarge--none aem-GridColumn--xsmall--16 aem-GridColumn--offset--xsmall--0 aem-GridColumn--xlarge--none aem-GridColumn--xxlarge--none aem-GridColumn--default--none aem-GridColumn--offset--large--1 aem-GridColumn--xlarge--12 aem-GridColumn--offset--default--0 aem-GridColumn--xxlarge--10 aem-GridColumn--offset--xlarge--2 aem-GridColumn--offset--xxlarge--3 aem-GridColumn--offset--xxxlarge--4 aem-GridColumn--xsmall--none aem-GridColumn--large--none aem-GridColumn aem-GridColumn--large--14 aem-GridColumn--xxxlarge--8 aem-GridColumn--default--16">
+												<div class="container-fluid sub-footer">
+
+													                    <div class="row">
+                        <div class="col-xs-24">
+                          <p><a target="_blank" href="https://www.amd.com/en/corporate/copyright">Terms and Conditions</a> | <a target="_blank" href="https://www.amd.com/en/corporate/privacy">Privacy</a> | <a target="_blank" href="https://www.amd.com/en/corporate/cookies">Cookie Policy</a> | <a target="_blank" href="https://www.amd.com/en/corporate/trademarks">Trademarks</a> | <a target="_blank" href="https://www.amd.com/system/files/documents/statement-human-trafficking-forced-labor.pdf">Statement on Forced Labor</a> | <a target="_blank" href="https://www.amd.com/en/corporate/competition">Fair and Open Competition</a> | <a target="_blank" href="https://www.amd.com/system/files/documents/amd-uk-tax-strategy.pdf">UK Tax Strategy</a> | <a target="_blank" href="https://docs.xilinx.com/v/u/9x6YvZKuWyhJId7y7RQQKA">Inclusive Terminology</a> | <a href="#cookiessettings" class="ot-sdk-show-settings">Cookies Settings</a></p>
+                        </div>
+                    </div>
+												</div>
+											</div>
+										</div>
+										
+</br>
+
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>
